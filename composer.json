@@ -2,9 +2,9 @@
     "name": "osmphp/data",
     "autoload": {
         "psr-4": {
-            "OsmPhp\\Data\\": "src/",
-            "OsmPhp\\Data\\Tests\\": "tests/",
-            "OsmPhp\\Data\\Samples\\": "samples/"
+            "Osm\\Data\\": "src/",
+            "Osm\\Data\\Tests\\": "tests/",
+            "Osm\\Data\\Samples\\": "samples/"
         }
     },
     "require": {
