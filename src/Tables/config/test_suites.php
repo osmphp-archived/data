@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'db_tests' => [ 'modules' => ['Osm_Data_Tables']],
+    'db' => [ 'modules' => ['Osm_Data_Tables']],
 ];
