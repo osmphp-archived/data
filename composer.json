@@ -16,7 +16,7 @@
         }
     },
     "require": {
-        "php": ">=7.3",
+        "php": ">=8.0",
         "osmphp/framework2": "^0.1"
     },
     "extra": {
