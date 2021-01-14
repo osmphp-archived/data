@@ -33,6 +33,7 @@ class Runner extends Object_
         switch ($this->command->type) {
             case Command::UNIQUE: $this->runUnique(); break;
             case Command::DROP_COLUMNS: $this->runDropColumns(); break;
+            case Command::DROP_REFERENCES: $this->runDropReferences(); break;
             default:
                 throw new NotSupported(osm_t("Command type ':type' not supported", ['type' => $this->command->type]));
         }
@@ -48,6 +49,14 @@ class Runner extends Object_
         foreach ($this->command->columns as $column) {
             if ($this->getColumnPartition($column) === $this->partition) {
                 $this->table->dropColumn($column);
+            }
+        }
+    }
+
+    protected function runDropReferences() {
+        foreach ($this->command->columns as $column) {
+            if ($this->getColumnPartition($column) === $this->partition) {
+                $this->table->dropForeign([$column]);
             }
         }
     }

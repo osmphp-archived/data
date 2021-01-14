@@ -12,4 +12,5 @@ class Command extends Object_
 {
     const UNIQUE = 'unique';
     const DROP_COLUMNS = 'drop_columns';
+    const DROP_REFERENCES = 'drop_references';
 }

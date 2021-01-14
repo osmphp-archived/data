@@ -105,4 +105,8 @@ class Blueprint extends Object_
     public function dropColumns(...$columns) {
         $this->commands[] = Command::new(['type' => Command::DROP_COLUMNS, 'columns' => $columns], null, $this);
     }
+
+    public function dropReferences(...$columns) {
+        $this->commands[] = Command::new(['type' => Command::DROP_REFERENCES, 'columns' => $columns], null, $this);
+    }
 }
