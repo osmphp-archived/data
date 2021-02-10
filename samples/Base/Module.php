@@ -14,5 +14,6 @@ class Module extends BaseModule
 
     public static array $requires = [
         \Osm\Data\Sheets\Module::class,
+        \Osm\Data\Import\Module::class,
     ];
 }

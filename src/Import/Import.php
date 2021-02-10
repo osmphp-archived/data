@@ -3,7 +3,7 @@
 /** @noinspection PhpUnusedAliasInspection */
 declare(strict_types=1);
 
-namespace Osm\Data\Sheets;
+namespace Osm\Data\Import;
 
 use Osm\Core\Object_;
 use Osm\Core\Attributes\Expected;
@@ -12,7 +12,7 @@ use function Osm\__;
 /**
  * @property string $path #[Expected]
  */
-class ImportTask extends Object_
+class Import extends Object_
 {
     /**
      * @var object[]|Message[]
@@ -30,7 +30,9 @@ class ImportTask extends Object_
     }
 
     public function importDirectory(string $path = ''): void {
-        $this->processDirectory($path);
+        if ($rule = $this->findDirectoryRule($path)) {
+            $rule->processDirectory($path);
+        }
 
         $absolutePath = $path ? "{$this->path}/{$path}" : $this->path;
 
@@ -63,21 +65,14 @@ class ImportTask extends Object_
             return;
         }
 
-        // if its a single record file (json, md, png, ...),
-        // import it right away
-        if ($this->processFile($path)) {
-            return;
-        }
-
-        // if its a multiple record file (csv), schedule it to be
-        // processed in the second phase
-        if ($this->scheduleRecordset($path)) {
-            return;
+        // if we can process the file according to some rule, do it
+        if ($rule = $this->findFileRule($path)) {
+            $rule->processFile($path);
         }
 
         // otherwise, it is not clear how to process the file -
         // report it to the user and continue
-        $this->warn($path, __("':type' file type not supported",
+        $this->warn($path, __(" doesn't match any import rule",
             ['type' => pathinfo($path, PATHINFO_EXTENSION)]));
     }
 
@@ -86,14 +81,6 @@ class ImportTask extends Object_
     }
 
     protected function processDirectory(string $path): void {
-    }
-
-    protected function processFile(string $path): bool {
-        return false;
-    }
-
-    protected function scheduleRecordset(string $path): bool {
-        return false;
     }
 
     protected function processRecordsets(): void {
@@ -105,5 +92,25 @@ class ImportTask extends Object_
             'path' => $path,
             'message' => $message,
         ];
+    }
+
+    protected function findFileRule(string $path): ?Rule {
+        foreach ($this->rules as $rule) {
+            if ($rule->matchFile($path)) {
+                return $rule;
+            }
+        }
+
+        return null;
+    }
+
+    protected function findDirectoryRule(string $path): ?Rule {
+        foreach ($this->rules as $rule) {
+            if ($rule->matchDirectory($path)) {
+                return $rule;
+            }
+        }
+
+        return null;
     }
 }
