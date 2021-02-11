@@ -11,7 +11,7 @@ use Osm\Data\Import\Sync;
 trait SheetsTrait
 {
     #[Runs(Import::class)]
-    public function import(string $path): Import {
+    public function import(string $path, Schema $schema): Import {
         $task = Import::new(['path' => $path]);
 
         $task->importDirectory();
