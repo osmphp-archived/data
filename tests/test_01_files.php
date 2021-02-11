@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace Osm\Data\Tests;
 
 use Osm\Data\Files\Module;
-use Osm\Data\Files\Rules\Record;
+use Osm\Data\Files\Rules;
+use Osm\Data\Files\Instructions;
 use Osm\Data\Samples\App;
 use Osm\Runtime\Apps;
 use PHPUnit\Framework\TestCase;
 
 class test_01_files extends TestCase
 {
-    public function test_parsing() {
+    public function test_rule_parsing() {
         Apps::run(Apps::create(App::class), function(App $app) {
             // GIVEN a set of data file rules
             $text = <<<EOT
@@ -42,7 +43,22 @@ EOT;
 
             // THEN rule objects are created
             $this->assertCount(10, $rules);
-            $this->assertInstanceOf(Record::class, $rules[0]);
+            $this->assertInstanceOf(Rules\Record::class, $rules[0]);
+        });
+    }
+
+    public function test_directory_processing() {
+        Apps::run(Apps::create(App::class), function(App $app) {
+            // GIVEN a sample import files in `sample-data/01` directory
+
+            // WHEN you process them
+            /* @var Module $module */
+            $module = $app->modules[Module::class];
+            $instructions = iterator_to_array($module->process('sample-data/01'));
+
+            // THEN rule objects are created
+            $this->assertCount(1, $instructions);
+            $this->assertInstanceOf(Instructions\Record::class, $instructions[0]);
         });
     }
 }

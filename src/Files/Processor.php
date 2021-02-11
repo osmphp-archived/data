@@ -40,6 +40,10 @@ class Processor extends Object_
                 continue;
             }
 
+            if (str_starts_with($fileInfo->getFilename(), '.')) {
+                continue;
+            }
+
             $relativePath = $path
                 ? "{$path}/{$fileInfo->getFilename()}"
                 : $fileInfo->getFilename();
@@ -50,7 +54,7 @@ class Processor extends Object_
             }
 
             foreach ($rules as $rule) {
-                $rule->process($before, $after);
+                $rule->process($this->path, $relativePath, $before, $after);
             }
         }
 
