@@ -10,7 +10,7 @@ use Osm\Data\Samples\App;
 use Osm\Runtime\Apps;
 use PHPUnit\Framework\TestCase;
 
-class test_01_json extends TestCase
+class test_91_json extends TestCase
 {
     public function test_json() {
         Apps::run(Apps::create(App::class), function(App $app) {

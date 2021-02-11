@@ -13,6 +13,7 @@ class Module extends BaseModule
     public static ?string $app_class_name = App::class;
 
     public static array $requires = [
+        \Osm\Data\Files\Module::class,
         \Osm\Data\Sheets\Module::class,
         \Osm\Data\Import\Module::class,
     ];
