@@ -8,6 +8,10 @@ namespace Osm\Data\Files\Rules;
 use Osm\Core\Exceptions\NotImplemented;
 use Osm\Core\Object_;
 use Osm\Core\Attributes\Expected;
+use Osm\Data\Files\Exceptions\IterationError;
+use Osm\Data\Files\File;
+use function Osm\merge;
+use function Osm\__;
 
 /**
  * @property string $pattern #[Expected]
@@ -17,15 +21,16 @@ use Osm\Core\Attributes\Expected;
 class Rule extends Object_
 {
     public static ?string $name;
-    const VARIABLE_REGEX = '/\{(?<variable>[^}]+)(?<recursive>\*)?\}/';
+    const VARIABLE_REGEX = '/\*(?<recursive>\*)?(?:\{(?<variable>[^}]+)\})?/';
 
-    public function process(string $rootPath, string $path,
+    /** @noinspection PhpUnusedParameterInspection */
+    public function recognize(string $rootPath, string $path,
         array &$before, array &$after)
     {
         throw new NotImplemented();
     }
 
-    protected function match(string $path): ?\stdClass {
+    protected function recognizeFilename(string $path): ?\stdClass {
         if (!preg_match($this->regex, $path, $match)) {
             return null;
         }
@@ -36,6 +41,10 @@ class Rule extends Object_
             if (!is_numeric($key)) {
                 $data->$key = $value;
             }
+        }
+
+        if ($this->data) {
+            $data = merge($data, $this->data);
         }
 
         return $data;
@@ -64,11 +73,15 @@ class Rule extends Object_
                 '/');
             $pos = $match[0][1] + mb_strlen($match[0][0]);
 
+            $variable = isset($match['variable'])
+                ? "<{$match['variable'][0]}>"
+                : ':';
+
             if (isset($match['recursive'])) {
-                $regex .= "(?<{$match['variable'][0]}>.+)";
+                $regex .= "(?{$variable}.+)";
             }
             else {
-                $regex .= "(?<{$match['variable'][0]}>[^\\/]+)";
+                $regex .= "(?{$variable}[^\\/]+)";
             }
 
         }, $pattern, -1, $count, PREG_OFFSET_CAPTURE);
@@ -91,4 +104,58 @@ class Rule extends Object_
         }, $pattern);
     }
 
+
+    protected function recognizeSheetName(\stdClass $data, string $path): string {
+        if (!isset($data->_sheet_name)) {
+            throw new IterationError(__(":filename: Can't infer the sheet name", [
+                'filename' => $path,
+            ]));
+        }
+        $sheetName = $data->_sheet_name;
+        unset($data->_sheet_name);
+
+        return $sheetName;
+    }
+
+    protected function recognizeExtension(\stdClass $data): string {
+        $ext = $data->_ext ?? '';
+        unset($data->_ext);
+
+        return $ext;
+    }
+
+    protected function recognizeKey(\stdClass $data): string {
+        if (!isset($data->_key)) {
+            $data->_key = "{name}";
+        }
+
+        $key = $this->eval($data->_key, $data);
+        unset($data->_key);
+
+        return $key;
+    }
+
+    protected function addFile(array &$target, string $absolutePath,
+        \stdClass $data, string $ext, string $sheetName, ?string $key = null)
+        : void
+    {
+        if (!$key) {
+            $key = "{$sheetName}||" . count($target);
+        }
+
+        /* @var File $file */
+        if (!isset($target[$key])) {
+            $target[$key] = $file = File::new([
+                'rule' => $this,
+                'sheet_name' => $sheetName,
+                'files' => [ $ext => $absolutePath ],
+                'data' => $data,
+            ]);
+        }
+        else {
+            $file = $target[$key];
+            $file->files[$ext] = $absolutePath;
+            $file->data = merge($file->data, $data);
+        }
+    }
 }

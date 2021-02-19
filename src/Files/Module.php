@@ -45,17 +45,15 @@ class Module extends BaseModule
      * @return \Generator|Instruction[]
      * @noinspection PhpDocSignatureInspection
      */
-    #[Runs(Processor::class)]
-    public function process(string $path, array $rules = [],
+    #[Runs(DirectoryIterator::class)]
+    public function iterate(string $path, array $rules = [],
         string $relativePath = ''): \Generator
     {
-        $processor = Processor::new(['path' => $path]);
-        $rules = array_merge($rules, $processor->collectParentRules(
+        $iterator = DirectoryIterator::new(['path' => $path]);
+        $rules = array_merge($rules, $iterator->collectParentRules(
             str_replace('\\', '/', $relativePath)));
 
-        foreach ($processor->process($rules, $relativePath) as $instruction) {
-            yield $instruction;
-        }
+        return $iterator->iterate($rules, $relativePath);
     }
 
     /** @noinspection PhpUnused */

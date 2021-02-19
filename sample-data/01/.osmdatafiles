@@ -1,1 +1,3 @@
-{_sheet_name}/{name}.json record
+*{_sheet_name}/*{name}.json upsert
+*{_sheet_name}.csv upsert_multiple
+

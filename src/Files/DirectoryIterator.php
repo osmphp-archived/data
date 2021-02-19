@@ -15,14 +15,14 @@ use Osm\Data\Files\Rules\Rule;
  * @property string $path #[Expected]
  * @property Module $module
  */
-class Processor extends Object_
+class DirectoryIterator extends Object_
 {
     /**
      * @param Rule[] $rules
      * @param string $path
      * @return \Generator
      */
-    public function process(array $rules = [], string $path = ''): \Generator
+    public function iterate(array $rules = [], string $path = ''): \Generator
     {
         $absolutePath = $path ? "{$this->path}/{$path}" : $this->path;
 
@@ -54,7 +54,7 @@ class Processor extends Object_
             }
 
             foreach ($rules as $rule) {
-                $rule->process($this->path, $relativePath, $before, $after);
+                $rule->recognize($this->path, $relativePath, $before, $after);
             }
         }
 
@@ -63,7 +63,7 @@ class Processor extends Object_
         }
 
         foreach ($dirs as $dir) {
-            foreach ($this->process($rules, $dir) as $instruction) {
+            foreach ($this->iterate($rules, $dir) as $instruction) {
                 yield $instruction;
             }
         }
