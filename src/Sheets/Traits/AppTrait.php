@@ -7,12 +7,12 @@ namespace Osm\Data\Sheets\Traits;
 use Osm\Data\Sheets\Sheets;
 
 /**
- * @property Sheets $data
+ * @property Sheets $sheets
  */
 trait AppTrait
 {
     /** @noinspection PhpUnused */
-    protected function get_data(): Sheets {
+    protected function get_sheets(): Sheets {
         return Sheets::new();
     }
 }

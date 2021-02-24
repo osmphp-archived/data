@@ -7,7 +7,6 @@ namespace Osm\Data\Files;
 use Osm\Core\App;
 use Osm\Core\Attributes\Runs;
 use Osm\Core\Module as BaseModule;
-use Osm\Data\Files\Instructions\Instruction;
 use Osm\Data\Files\Rules\Rule;
 
 /**
@@ -42,7 +41,7 @@ class Module extends BaseModule
 
     /**
      * @param string $path
-     * @return \Generator|Instruction[]
+     * @return \Generator|File[]
      * @noinspection PhpDocSignatureInspection
      */
     #[Runs(DirectoryIterator::class)]

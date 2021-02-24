@@ -4,27 +4,20 @@ declare(strict_types=1);
 
 namespace Osm\Data\Import\Traits;
 
-use Osm\Core\Attributes\Runs;
-use Osm\Data\Import\Import;
-use Osm\Data\Import\Sync;
+use Osm\Core\App;
+use Osm\Data\Import\Module;
+use Symfony\Component\Console\Output\OutputInterface;
 
 trait SheetsTrait
 {
-    #[Runs(Import::class)]
-    public function import(string $path, Schema $schema): Import {
-        $task = Import::new(['path' => $path]);
+    public function import(string $path, ?OutputInterface &$output = null,
+        array $rules = [], string $relativePath = ''): void
+    {
+        global $osm_app; /* @var App $osm_app */
 
-        $task->importDirectory();
+        /* @var Module $module */
+        $module = $osm_app->modules[Module::class];
 
-        return $task;
-    }
-
-    #[Runs(Sync::class)]
-    public function sync(string $path): Sync {
-        $task = Sync::new(['path' => $path]);
-
-        $task->syncDirectory();
-
-        return $task;
+        $module->import($path, $output, $rules, $relativePath);
     }
 }
