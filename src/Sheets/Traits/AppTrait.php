@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Osm\Data\Sheets\Traits;
 
-use Osm\Data\Sheets\Sheets;
+use Osm\Data\Sheets\Data;
 
 /**
- * @property Sheets $sheets
+ * @property Data $data
  */
 trait AppTrait
 {
-    /** @noinspection PhpUnused */
-    protected function get_sheets(): Sheets {
-        return Sheets::new();
+    protected function get_data(): Data {
+        return Data::new();
     }
 }

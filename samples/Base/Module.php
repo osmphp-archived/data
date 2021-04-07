@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Osm\Data\Samples\Base;
 
-use Osm\Core\Module as BaseModule;
+use Osm\Core\BaseModule;
 use Osm\Data\Samples\App;
 
 class Module extends BaseModule
@@ -13,8 +13,6 @@ class Module extends BaseModule
     public static ?string $app_class_name = App::class;
 
     public static array $requires = [
-        \Osm\Data\Files\Module::class,
-        \Osm\Data\Sheets\Module::class,
-        \Osm\Data\Import\Module::class,
+        \Osm\Data\All\Module::class,
     ];
 }
