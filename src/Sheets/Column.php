@@ -101,7 +101,10 @@ class Column extends Object_
     }
 
     protected function get_type(): Type {
-        $new = "{$this->module->type_classes[$this->type_name]}::new";
+        global $osm_app; /* @var App $osm_app */
+
+        $types = $osm_app->descendants->byName(Type::class);
+        $new = "{$types[$this->type_name]}::new";
         $data = $this->type_data ? (array)json_decode($this->type_data) : [];
         $data['column'] = $this;
         return $new($data);

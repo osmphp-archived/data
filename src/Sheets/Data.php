@@ -345,7 +345,10 @@ class Data extends Object_
     }
 
     public function sheet(string $sheetName): Query {
-        if (!($className = $this->module->query_classes[$sheetName] ?? null)) {
+        global $osm_app; /* @var App $osm_app */
+
+        $classes = $osm_app->descendants->byName(Query::class);
+        if (!($className = $classes[$sheetName] ?? null)) {
             return Query::new(['sheet_name' => $sheetName]);
         }
 
