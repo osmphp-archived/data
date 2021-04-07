@@ -4,16 +4,12 @@ declare(strict_types=1);
 
 namespace Osm\Data\Sheets;
 
-use Illuminate\Database\Query\Builder as DbQuery;
 use Osm\Core\App;
 use Osm\Core\Exceptions\NotImplemented;
 use Osm\Core\Object_;
-use Osm\Data\Sheets\Column;
 use Osm\Data\Sheets\Hints\Result;
 use Osm\Framework\Db\Db;
 use Osm\Framework\Search\Search;
-use function Osm\__;
-use Osm\Data\Sheets\Exceptions\QueryError;
 
 /**
  * @property string $sheet_name
@@ -23,6 +19,10 @@ use Osm\Data\Sheets\Exceptions\QueryError;
  * @property Data $data
  * @property Sheet $sheet
  * @property bool $count
+ * @property bool $no_select_route
+ * @property bool $no_insert_route
+ * @property bool $no_update_route
+ * @property bool $no_delete_route
  */
 class Query extends Object_
 {

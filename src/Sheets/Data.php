@@ -10,18 +10,20 @@ use Osm\Core\BaseModule;
 use Osm\Core\Exceptions\NotImplemented;
 use Osm\Core\Object_;
 use Osm\Data\Sheets\Exceptions\BlueprintError;
+use Osm\Framework\Cache\Cache;
 use Osm\Framework\Db\Db;
 use Osm\Framework\Search\Search;
-use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Illuminate\Database\Schema\Blueprint as TableBlueprint;
 use Osm\Framework\Search\Blueprint as IndexBlueprint;
+use Osm\Framework\Cache\Attributes\Cached;
 use function Osm\__;
 
 /**
- * @property TagAwareAdapter $cache
+ * @property Cache $cache
  * @property string $column_table_name
  * @property Db $db
  * @property Module $module
+ * @property string[] $sheet_names #[Cached('data|sheets')]
  */
 class Data extends Object_
 {
@@ -152,13 +154,17 @@ class Data extends Object_
     protected function refreshSheet(string $sheetName): void {
         unset($this->sheets[$sheetName]);
 
+        if ($this->cache->hasItem("data|sheets")) {
+            $this->cache->deleteItem("data|sheets");
+        }
+
         if ($this->cache->hasItem("data|sheets|{$sheetName}")) {
             $this->cache->deleteItem("data|sheets|{$sheetName}");
         }
     }
 
     /** @noinspection PhpUnused */
-    protected function get_cache(): TagAwareAdapter {
+    protected function get_cache(): Cache {
         global $osm_app; /* @var App $osm_app */
 
         return $osm_app->cache;
@@ -361,5 +367,15 @@ class Data extends Object_
         global $osm_app; /* @var App $osm_app */
 
         return $osm_app->modules[Module::class];
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_sheet_names(): array {
+        return $this->db->table('sheets', 'this')
+            ->get(['this.name'])
+            ->map(fn(\stdClass $item) => $item->name)
+            ->keyBy(fn(string $name) =>
+                '/' . str_replace('__', '/', $name))
+            ->toArray();
     }
 }
