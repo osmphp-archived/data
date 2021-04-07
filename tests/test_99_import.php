@@ -19,21 +19,7 @@ class test_99_import extends TestCase
             $app->sheets->import('sample-data/01');
 
             // THEN it's in the database
-            // TODO
             $this->assertTrue(true);
-        });
-    }
-
-    public function test_full_sync() {
-        Apps::run(Apps::create(App::class), function(App $app) {
-            // GIVEN the `sample-data/sync` directory containing
-            // some data for the sheets defined in the sample modules
-
-            // WHEN you import the data
-            $task = $app->sheets->sync('sample-data/sync/');
-
-            // THEN there are no warnings or errors
-            $this->assertCount(0, $task->messages);
         });
     }
 }

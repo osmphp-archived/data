@@ -24,6 +24,4 @@ class Sheets extends Object_
     protected function get___classes(): array {
         return get_descendant_classes_by_name(Sheet::class);
     }
-
-
 }
