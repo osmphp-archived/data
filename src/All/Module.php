@@ -9,6 +9,6 @@ use Osm\Core\BaseModule;
 class Module extends BaseModule
 {
     public static array $requires = [
-        \Osm\Data\Sheets\Module::class,
+        \Osm\Data\Data\Module::class,
     ];
 }
