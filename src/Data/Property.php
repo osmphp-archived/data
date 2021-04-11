@@ -18,9 +18,19 @@ use Osm\Data\Data\Filters\Condition;
  * @property string $type #[Serialized]
  * @property Data $data
  * @property ?Property $parent
+ * @property ?Computed $computed #[Serialized]
  */
 class Property extends Object_
 {
+    public function __construct(array $data = []) {
+        if (isset($data['computed'])) {
+            $data['computed'] = $this->data->create(Computed::class,
+                $data['computed']);
+        }
+
+        parent::__construct($data);
+    }
+
     protected function get_data(): Data {
         global $osm_app; /* @var App $osm_app */
 
@@ -43,4 +53,12 @@ class Property extends Object_
         throw new NotImplemented($this);
     }
 
+    public function inserting(Query $query, \stdClass $values, \stdClass $data,
+        mixed $value, string $prefix = ''): void
+    {
+        throw new NotImplemented($this);
+    }
+
+    public function inserted(Query $query, mixed $value, int $id): void {
+    }
 }

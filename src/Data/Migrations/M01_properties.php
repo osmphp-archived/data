@@ -63,7 +63,7 @@ class M01_properties extends Migration
                 'name' => 'parent',
                 'type' => 'object',
                 'ref' => (object)[
-                    'table' => 'properties',
+                    'endpoint' => '/properties',
                     'on_delete' => 'cascade',
                 ],
             ]),
@@ -99,6 +99,13 @@ class M01_properties extends Migration
             'data' => json_encode((object)[
                 'name' => 'properties',
                 'type' => 'array',
+                'items' => (object)[
+                    'type' => 'object',
+                    'ref' => (object)[
+                        'endpoint' => '/properties',
+                        'property' => 'parent',
+                    ],
+                ],
             ]),
         ]);
 
@@ -123,7 +130,98 @@ class M01_properties extends Migration
             'data' => json_encode((object)[
                 'name' => 'properties',
                 'type' => 'array',
+                'key' => 'name',
+                'items' => (object)[
+                    'type' => 'object',
+                    'ref' => (object)[
+                        'endpoint' => '/properties',
+                        'property' => 'parent',
+                    ],
+                ],
             ]),
         ]);
+
+        $column = $this->db->table('properties')->insertGetId([
+            'parent_id' => $properties,
+            'data' => json_encode((object)[
+                'name' => 'column',
+                'type' => 'object',
+            ]),
+        ]);
+
+        $this->db->table('properties')->insert([
+            'parent_id' => $column,
+            'data' => json_encode((object)[
+                'name' => 'unsigned',
+                'type' => 'boolean',
+            ]),
+        ]);
+
+        $this->db->table('properties')->insert([
+            'parent_id' => $column,
+            'data' => json_encode((object)[
+                'name' => 'auto_increment',
+                'type' => 'boolean',
+            ]),
+        ]);
+
+        $this->db->table('properties')->insert([
+            'parent_id' => $column,
+            'data' => json_encode((object)[
+                'name' => 'unique',
+                'type' => 'boolean',
+            ]),
+        ]);
+
+        $this->db->table('properties')->insert([
+            'parent_id' => $column,
+            'data' => json_encode((object)[
+                'name' => 'index',
+                'type' => 'boolean',
+            ]),
+        ]);
+
+        $this->db->table('properties')->insert([
+            'parent_id' => $column,
+            'data' => json_encode((object)[
+                'name' => 'type',
+                'type' => 'string',
+            ]),
+        ]);
+
+
+        $this->db->table('properties')->insert([
+            'parent_id' => $column,
+            'data' => json_encode((object)[
+                'name' => 'default',
+                'type' => 'string',
+            ]),
+        ]);
+
+        $ref = $this->db->table('properties')->insertGetId([
+            'parent_id' => $properties,
+            'data' => json_encode((object)[
+                'name' => 'ref',
+                'type' => 'object',
+            ]),
+        ]);
+
+        $this->db->table('properties')->insert([
+            'parent_id' => $ref,
+            'data' => json_encode((object)[
+                'name' => 'endpoint',
+                'type' => 'string',
+            ]),
+        ]);
+
+
+        $this->db->table('properties')->insert([
+            'parent_id' => $ref,
+            'data' => json_encode((object)[
+                'name' => 'on_delete',
+                'type' => 'string',
+            ]),
+        ]);
+
     }
 }

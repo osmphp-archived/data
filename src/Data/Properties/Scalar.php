@@ -8,6 +8,7 @@ use Illuminate\Database\Query\Builder as TableQuery;
 use Osm\Data\Data\Column;
 use Osm\Data\Data\Property;
 use Osm\Core\Attributes\Serialized;
+use Osm\Data\Data\Query;
 
 /**
  * @property ?Column $column #[Serialized]
@@ -30,6 +31,16 @@ class Scalar extends Property
             $query->addSelect(
                 "this.data->{$this->name} AS {$this->name}");
         }
+    }
 
+    public function inserting(Query $query, \stdClass $values, \stdClass $data,
+        mixed $value, string $prefix = ''): void
+    {
+        if (isset($this->column)) {
+            $values->{$prefix . $this->name} = $value;
+        }
+        else {
+            $data->{$this->name} = $value;
+        }
     }
 }

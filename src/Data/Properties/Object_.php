@@ -7,10 +7,13 @@ namespace Osm\Data\Data\Properties;
 use Illuminate\Database\Query\Builder as TableQuery;
 use Osm\Core\Attributes\Name;
 use Osm\Core\Exceptions\NotImplemented;
+use Osm\Data\Data\Exceptions\UnknownProperty;
 use Osm\Data\Data\Filters\Condition;
 use Osm\Data\Data\Property;
+use Osm\Data\Data\Query;
 use Osm\Data\Data\Ref;
 use Osm\Core\Attributes\Serialized;
+use function Osm\object_empty;
 
 /**
  * @property Property[] $properties
@@ -49,6 +52,46 @@ class Object_ extends Property
         }
 
         throw new NotImplemented($this);
-        $a = 1;
+    }
+
+    public function inserting(Query $query, \stdClass $values, \stdClass $data,
+        mixed $value, string $prefix = ''): void
+    {
+        if ($value === null) {
+            return;
+        }
+
+        if (!is_object($value)) {
+            if ($this->ref) {
+                $values->{$this->name . '_id'} = $value;
+                return;
+            }
+
+            throw new NotImplemented($this);
+        }
+
+        $object = new \stdClass();
+        $prefix = "{$prefix}{$this->name}__";
+
+        foreach ($value as $propertyName => $propertyValue) {
+            if (!isset($this->properties[$propertyName])) {
+                throw new UnknownProperty($this, $propertyName);
+            }
+
+            $property = $this->properties[$propertyName];
+            $property->inserting($query, $values, $object, $propertyValue, $prefix);
+        }
+
+        if (!object_empty($object)) {
+            $data->{$this->name} = $object;
+        }
+    }
+
+    public function inserted(Query $query, mixed $value, int $id): void {
+        foreach ($this->properties as $property) {
+            if (isset($value->{$property->name})) {
+                $property->inserted($query, $value->{$property->name}, $id);
+            }
+        }
     }
 }

@@ -77,20 +77,20 @@ class Query extends Object_
         return $this;
     }
 
-    public function rows(string ...$columnNames): array {
-        return $this->get(...$columnNames)->rows;
+    public function items(string ...$columnNames): array {
+        return $this->get(...$columnNames)->items;
     }
 
     public function first(string ...$columnNames): ?\stdClass {
-        return $this->rows(...$columnNames)[0] ?? null;
+        return $this->items(...$columnNames)[0] ?? null;
     }
 
     public function value($columnName): mixed {
-        if (($row = $this->first($columnName)) === null) {
+        if (($item = $this->first($columnName)) === null) {
             return null;
         }
 
-        foreach ($row as $property => $value) {
+        foreach ($item as $value) {
             return $value;
         }
 
@@ -132,5 +132,10 @@ class Query extends Object_
     protected function get_table(): string {
         return str_replace('/', '__',
             ltrim($this->endpoint->endpoint, '/'));
+    }
+
+    public function insert(\stdClass $data): int {
+        return $this->db->transaction(
+            fn() => $this->endpoint->insert($this, $data));
     }
 }
