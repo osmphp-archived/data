@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Osm\Data\Data;
 
+use Illuminate\Database\Query\Builder as TableQuery;
 use Osm\Core\App;
 use Osm\Core\Exceptions\NotImplemented;
 use Osm\Core\Object_;
+use Osm\Data\Data\Filters\Condition;
 use Osm\Data\Data\Hints\Property;
 use Osm\Framework\Cache\Attributes\Cached;
 use Osm\Framework\Cache\Cache;
@@ -137,5 +139,20 @@ class Data extends Object_
         }
 
         return $this->types[$typeName];
+    }
+
+    public function select(\stdClass|Property $property, TableQuery $query,
+        string $expr, string $alias = 'this', $joins = []): void
+    {
+        $this->type($property->type)->select($property, $query,
+            $expr, $alias, $joins);
+    }
+
+    public function filter(\stdClass|Property $property, TableQuery $query,
+        string $expr, Condition $condition, string $alias = 'this',
+        $joins = []): void
+    {
+        $this->type($property->type)->filter($property, $query,
+            $expr, $condition, $alias, $joins);
     }
 }

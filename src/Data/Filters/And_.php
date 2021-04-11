@@ -4,20 +4,31 @@ declare(strict_types=1);
 
 namespace Osm\Data\Data\Filters;
 
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Query\Builder as TableQuery;
+use Osm\Data\Data\Filter;
 use Osm\Framework\Search\Query as SearchQuery;
+use Osm\Data\Data\Hints\Property;
 
-class And_ extends LogicalFilter
+class And_ extends Filter
 {
-    public function apply(SearchQuery $query): void {
+    /**
+     * @var Filter[]
+     */
+    public array $filters = [];
+
+    public function search(\stdClass|Property $property, SearchQuery $query)
+        : void
+    {
         foreach ($this->filters as $filter) {
-            $filter->apply($query);
+            $filter->search($property, $query);
         }
     }
 
-    public function applyToDbQuery(Builder $query) {
+    public function filter(\stdClass|Property $property, TableQuery $query)
+        : void
+    {
         foreach ($this->filters as $filter) {
-            $filter->applyToDbQuery($query);
+            $filter->filter($property, $query);
         }
     }
 }

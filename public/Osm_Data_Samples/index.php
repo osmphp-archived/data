@@ -11,6 +11,11 @@ umask(0);
 handle_errors();
 
 Apps::$project_path = dirname(dirname(__DIR__));
-Apps::run(Apps::create(App::class), function (App $app) {
-    $app->handleHttpRequest()->send();
-});
+try {
+    Apps::run(Apps::create(App::class), function (App $app) {
+        $app->handleHttpRequest()->send();
+    });
+}
+catch (\Throwable $e) {
+    \Osm\exception_response($e)->send();
+}
