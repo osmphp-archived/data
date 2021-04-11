@@ -6,12 +6,15 @@ namespace Osm\Data\Data\Routes\Api;
 
 use Osm\Core\App;
 use Osm\Data\Data\Data;
+use Osm\Data\Data\Property;
 use Osm\Data\Data\Query;
+use Osm\Data\Data\Schema;
 use Osm\Framework\Http\Route as BaseRoute;
 
 /**
  * @property Data $data
- * @property string $endpoint
+ * @property Schema $schema
+ * @property Property $endpoint
  * @property Query $query
  */
 class Route extends BaseRoute
@@ -31,5 +34,9 @@ class Route extends BaseRoute
     /** @noinspection PhpUnused */
     protected function get_query(): Query {
         return $this->data->query($this->endpoint);
+    }
+
+    protected function get_schema(): Schema {
+        return $this->data->schema;
     }
 }

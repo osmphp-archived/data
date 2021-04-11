@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Osm\Data\Data\Types;
+namespace Osm\Data\Data\Properties;
 
 use Osm\Core\Attributes\Name;
 

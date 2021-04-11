@@ -18,7 +18,7 @@ use function Osm\json_response;
 class Select extends Route
 {
     public function match(): ?Route {
-        if ($endpoint = $this->data->endpoints[$this->http->path] ?? null) {
+        if ($endpoint = $this->schema->endpoints[$this->http->path] ?? null) {
             $this->endpoint = $endpoint;
 
             return match ($this->http->request->getMethod()) {
@@ -33,7 +33,7 @@ class Select extends Route
             return null;
         }
 
-        foreach ($this->data->endpoints as $path => $endpoint) {
+        foreach ($this->schema->endpoints as $path => $endpoint) {
             if ($this->http->path == "{$path}/insert") {
                 return Insert::new(['endpoint' => $endpoint]);
             }

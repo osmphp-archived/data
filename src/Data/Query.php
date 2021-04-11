@@ -10,11 +10,12 @@ use Osm\Core\Object_;
 use Osm\Data\Data\Filters\Condition;
 use Osm\Data\Data\Hints\Property;
 use Osm\Data\Data\Hints\Result;
+use Osm\Data\Data\Properties\Array_;
 use Osm\Framework\Db\Db;
 use Osm\Framework\Search\Search;
 
 /**
- * @property \stdClass|Property $array
+ * @property Array_ $endpoint
  * @property string $table
  * @property Filters\And_ $filter
  * @property Db $db
@@ -44,7 +45,7 @@ class Query extends Object_
     public function get(string ...$exprs): array|\stdClass|Result {
         $this->select(...$exprs);
         $query = $this->db->table($this->table, 'this');
-        $this->filter->filter($this->array, $query);
+        $this->filter->filter($this->endpoint, $query);
 
         if (!empty($this->select)) {
             foreach ($this->select as $expr) {
@@ -129,18 +130,7 @@ class Query extends Object_
     }
 
     protected function get_table(): string {
-        if (isset($this->array->endpoint)) {
-            return str_replace('/', '__',
-                ltrim($this->array->endpoint, '/'));
-        }
-
-        $table = $this->array->name;
-        $property = $this->array;
-        while ($property->parent_id) {
-            $property = $this->data->properties[$property->parent_id];
-            $table = "{$property->name}__{$table}";
-        }
-
-        return $table;
+        return str_replace('/', '__',
+            ltrim($this->endpoint->endpoint, '/'));
     }
 }
