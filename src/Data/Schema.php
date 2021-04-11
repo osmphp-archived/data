@@ -16,9 +16,9 @@ use function Osm\merge;
  * @property int[] $child_ids #[Serialized]
  * @property int[] $endpoint_ids #[Serialized]
  * @property Db $db
- * @property Descendants $descendants
  * @property Property[] $properties
  * @property Property[] $endpoints
+ * @property Data $data
  */
 class Schema extends Object_
 {
@@ -48,7 +48,7 @@ class Schema extends Object_
                 $item = merge($data, $item);
             }
 
-            $this->all[$item->id] = $this->createProperty($item);
+            $this->all[$item->id] = $this->data->create(Property::class, $item);
 
             $parentId = $item->parent_id ?? 0;
             if (!isset($this->child_ids[$parentId])) {
@@ -68,19 +68,6 @@ class Schema extends Object_
         return $osm_app->db;
     }
 
-    public function createProperty(\stdClass $item): Property {
-        $new = "{$this->descendants->byName(Property::class)
-            [$item->type]}::new";
-
-        return $new((array)$item);
-    }
-
-    protected function get_descendants(): Descendants {
-        global $osm_app; /* @var App $osm_app */
-
-        return $osm_app->descendants;
-    }
-
     protected function get_properties(): array {
         $properties = [];
 
@@ -96,7 +83,9 @@ class Schema extends Object_
             $this->endpoint_ids);
     }
 
-    public function __sleep(): array {
-        return parent::__sleep();
+    protected function get_data(): Data {
+        global $osm_app; /* @var App $osm_app */
+
+        return $osm_app->data;
     }
 }

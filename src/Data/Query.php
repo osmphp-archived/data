@@ -49,7 +49,7 @@ class Query extends Object_
 
         if (!empty($this->select)) {
             foreach ($this->select as $expr) {
-                $this->data->select($this->array, $query, $expr);
+                $this->endpoint->select($query, $expr);
             }
 
             $items = $query->get()->toArray();
@@ -63,7 +63,7 @@ class Query extends Object_
         }
 
         $query = $this->db->table($this->table, 'this');
-        $this->filter->filter($this->array, $query);
+        $this->filter->filter($this->endpoint, $query);
         $count = $query->value($this->db->raw('COUNT(this.id)'));
 
         return (object)[

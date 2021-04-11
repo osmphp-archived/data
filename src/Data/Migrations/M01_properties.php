@@ -53,7 +53,7 @@ class M01_properties extends Migration
             'data' => json_encode((object)[
                 'name' => 'id',
                 'type' => 'number',
-                'db' => (object)[],
+                'column' => (object)[],
             ]),
         ]);
 
@@ -62,7 +62,10 @@ class M01_properties extends Migration
             'data' => json_encode((object)[
                 'name' => 'parent',
                 'type' => 'object',
-                'db' => (object)[],
+                'ref' => (object)[
+                    'table' => 'properties',
+                    'on_delete' => 'cascade',
+                ],
             ]),
         ]);
 
@@ -71,7 +74,7 @@ class M01_properties extends Migration
             'data' => json_encode((object)[
                 'name' => 'endpoint',
                 'type' => 'string',
-                'db' => (object)[],
+                'column' => (object)[],
             ]),
         ]);
 
