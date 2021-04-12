@@ -9,6 +9,7 @@ use Osm\Core\Object_;
 use Osm\Core\Attributes\Serialized;
 use Osm\Framework\Cache\Descendants;
 use Osm\Framework\Db\Db;
+use function Osm\create;
 use function Osm\merge;
 
 /**
@@ -48,7 +49,9 @@ class Schema extends Object_
                 $item = merge($data, $item);
             }
 
-            $this->all[$item->id] = $this->data->create(Property::class, $item);
+            $this->all[$item->id] = create(Property::class,
+                $item->type ?? null,
+                (array)$item);
 
             $parentId = $item->parent_id ?? 0;
             if (!isset($this->child_ids[$parentId])) {

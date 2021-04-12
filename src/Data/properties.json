@@ -4,6 +4,7 @@
     "endpoint": "/properties",
     "items": {
       "type": "object",
+      "class": "Osm\\Data\\Data\\Property",
       "properties": {
         "id": {
           "type": "number",
@@ -21,6 +22,9 @@
           "type": "string"
         },
         "type": {
+          "type": "string"
+        },
+        "class": {
           "type": "string"
         },
         "properties": {
@@ -48,6 +52,7 @@
         },
         "column": {
           "type": "object",
+          "class": "Osm\\Data\\Data\\Column",
           "properties": {
             "type": {
               "type": "string"
@@ -71,6 +76,7 @@
         },
         "ref": {
           "type": "object",
+          "class": "Osm\\Data\\Data\\Ref",
           "properties": {
             "endpoint": {
               "type": "string"

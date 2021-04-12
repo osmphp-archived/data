@@ -9,6 +9,7 @@ use Osm\Data\Data\Column;
 use Osm\Data\Data\Property;
 use Osm\Core\Attributes\Serialized;
 use Osm\Data\Data\Query;
+use function Osm\create;
 
 /**
  * @property ?Column $column #[Serialized]
@@ -17,7 +18,9 @@ class Scalar extends Property
 {
     public function __construct(array $data = []) {
         if (isset($data['column'])) {
-            $data['column'] = $this->data->create(Column::class, $data['column']);
+            $data['column'] = create(Column::class,
+                $data['column']->type ?? null,
+                (array)$data['column']);
         }
 
         parent::__construct($data);

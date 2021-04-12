@@ -24,8 +24,9 @@ class Property extends Object_
 {
     public function __construct(array $data = []) {
         if (isset($data['computed'])) {
-            $data['computed'] = $this->data->create(Computed::class,
-                $data['computed']);
+            $data['computed'] = create(Computed::class,
+                $data['computed']->type ?? null,
+                (array)$data['computed']);
         }
 
         parent::__construct($data);

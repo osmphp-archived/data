@@ -13,6 +13,7 @@ use Osm\Data\Data\Property;
 use Osm\Data\Data\Query;
 use Osm\Data\Data\Ref;
 use Osm\Core\Attributes\Serialized;
+use function Osm\create;
 use function Osm\object_empty;
 
 /**
@@ -24,7 +25,9 @@ class Object_ extends Property
 {
     public function __construct(array $data = []) {
         if (isset($data['ref'])) {
-            $data['ref'] = $this->data->create(Ref::class, $data['ref']);
+            $data['ref'] = create(Ref::class,
+                $data['ref']->type ?? null,
+                (array)$data['ref']);
         }
 
         parent::__construct($data);

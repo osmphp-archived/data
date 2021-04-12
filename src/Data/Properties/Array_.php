@@ -12,6 +12,7 @@ use Osm\Data\Data\Filters\Condition;
 use Osm\Data\Data\Property;
 use Osm\Core\Attributes\Serialized;
 use Osm\Data\Data\Query;
+use function Osm\create;
 use function Osm\object_empty;
 
 /**
@@ -25,8 +26,9 @@ class Array_ extends Property
     public function __construct(array $data = []) {
         if (isset($data['items'])) {
             $data['items']->id = $data['id'];
-            $data['items'] = $this->data->create(Property::class,
-                $data['items']);
+            $data['items'] = create(Property::class,
+                $data['items']->type ?? null,
+                (array)$data['items']);
         }
 
         parent::__construct($data);
