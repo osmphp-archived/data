@@ -41,7 +41,8 @@ class M01_properties extends Migration
     }
 
     protected function get_root_property(): \stdClass {
-        return json_decode(file_get_contents(__DIR__ . '/properties.json'));
+        return json_decode(file_get_contents(
+            dirname(__DIR__) . '/properties.json'));
     }
 
     public function insert(): void {
