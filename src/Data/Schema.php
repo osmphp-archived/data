@@ -7,6 +7,7 @@ namespace Osm\Data\Data;
 use Osm\Core\App;
 use Osm\Core\Object_;
 use Osm\Core\Attributes\Serialized;
+use Osm\Data\Data\Properties\Array_;
 use Osm\Framework\Cache\Descendants;
 use Osm\Framework\Db\Db;
 use function Osm\create;
@@ -18,8 +19,9 @@ use function Osm\merge;
  * @property int[] $endpoint_ids #[Serialized]
  * @property Db $db
  * @property Property[] $properties
- * @property Property[] $endpoints
+ * @property Array_[] $endpoints
  * @property Data $data
+ * @property MetaProperties\Array_ $meta
  */
 class Schema extends Object_
 {
@@ -42,16 +44,11 @@ class Schema extends Object_
         $this->child_ids = [];
         $this->endpoint_ids = [];
 
-        foreach ($this->db->table('properties')->get() as $item) {
-            if (isset($item->data)) {
-                $data = json_decode($item->data);
-                unset($item->data);
-                $item = merge($data, $item);
-            }
 
-            $this->all[$item->id] = create(Property::class,
-                $item->type ?? null,
-                (array)$item);
+        foreach ($this->db->table('properties')->get() as $item) {
+            $item = $this->mergeData($item);
+
+            $this->all[$item->id] = $this->meta->items->hydrate($item);
 
             $parentId = $item->parent_id ?? 0;
             if (!isset($this->child_ids[$parentId])) {
@@ -90,5 +87,62 @@ class Schema extends Object_
         global $osm_app; /* @var App $osm_app */
 
         return $osm_app->data;
+    }
+
+    protected function get_meta(): MetaProperty {
+        return $this->parseRecord($this->db->table('properties')
+            ->where('endpoint', '/properties')
+            ->whereNull('parent_id')
+            ->first());
+    }
+
+    protected function parseRecord(\stdClass $item): MetaProperty {
+        $item = $this->mergeData($item);
+
+        $property = $this->createProperty($item);
+
+        if ($property instanceof MetaProperties\Object_) {
+            $property->properties = $this->loadChildProperties($property);
+        }
+        elseif($property instanceof MetaProperties\Array_) {
+            $property->items->properties = $this->loadChildProperties($property);
+        }
+
+        return $property;
+    }
+
+    protected function mergeData(\stdClass $item): \stdClass {
+        if (isset($item->data)) {
+            $data = json_decode($item->data);
+            unset($item->data);
+            $item = merge($data, $item);
+        }
+
+        return $item;
+    }
+
+    protected function createProperty(\stdClass $property): MetaProperty
+    {
+        return match ($property->type) {
+            'object' => MetaProperties\Object_::new((array)$property),
+            'array' => $this->createArray($property),
+            'string' => MetaProperties\String_::new((array)$property),
+            'number' => MetaProperties\Number::new((array)$property),
+            'boolean' => MetaProperties\Boolean::new((array)$property),
+        };
+    }
+
+    protected function loadChildProperties(MetaProperty $property): array {
+        return $this->db->table('properties')
+            ->where('parent_id', $property->id)
+            ->get()
+            ->map(fn($item) => $this->parseRecord($item))
+            ->keyBy('name')
+            ->toArray();
+    }
+
+    protected function createArray(\stdClass $property): MetaProperties\Array_ {
+        $property->items = $this->createProperty($property->items);
+        return MetaProperties\Array_::new((array)$property);
     }
 }

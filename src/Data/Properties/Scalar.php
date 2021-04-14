@@ -16,15 +16,15 @@ use function Osm\create;
  */
 class Scalar extends Property
 {
-    public function __construct(array $data = []) {
-        if (isset($data['column'])) {
-            $data['column'] = create(Column::class,
-                $data['column']->type ?? null,
-                (array)$data['column']);
-        }
-
-        parent::__construct($data);
-    }
+//    public function __construct(array $data = []) {
+//        if (isset($data['column'])) {
+//            $data['column'] = create(Column::class,
+//                $data['column']->type ?? null,
+//                (array)$data['column']);
+//        }
+//
+//        parent::__construct($data);
+//    }
 
     public function select(TableQuery $query, string $expr) {
         if (isset($this->column)) {

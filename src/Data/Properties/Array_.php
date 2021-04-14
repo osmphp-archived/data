@@ -14,6 +14,7 @@ use Osm\Core\Attributes\Serialized;
 use Osm\Data\Data\Query;
 use function Osm\create;
 use function Osm\object_empty;
+use function Osm\log;
 
 /**
  * @property ?string $endpoint #[Serialized]
@@ -23,16 +24,16 @@ use function Osm\object_empty;
 #[Name('array')]
 class Array_ extends Property
 {
-    public function __construct(array $data = []) {
-        if (isset($data['items'])) {
-            $data['items']->id = $data['id'];
-            $data['items'] = create(Property::class,
-                $data['items']->type ?? null,
-                (array)$data['items']);
-        }
-
-        parent::__construct($data);
-    }
+//    public function __construct(array $data = []) {
+//        if (isset($data['items'])) {
+//            $data['items']->id = $data['id'];
+//            $data['items'] = create(Property::class,
+//                $data['items']->type ?? null,
+//                (array)$data['items']);
+//        }
+//
+//        parent::__construct($data);
+//    }
 
     public function filter(TableQuery $query, string $expr,
         Condition $condition): void
@@ -85,7 +86,8 @@ class Array_ extends Property
             $values->data = json_encode($values->data);
         }
 
-        $id = $query->db->table($query->table)->insertGetId((array)$values);
+        $id = $values->id = $query->db->table($query->table)
+            ->insertGetId((array)$values);
 
         foreach ($this->items->properties as $property) {
             if (isset($data->{$property->name})) {
@@ -110,7 +112,7 @@ class Array_ extends Property
 
         foreach ($this->array($value) as $item) {
             $item->{$this->items->ref->property} = $id;
-            $this->data->query($endpoint)->insert($item);
+            $this->data->query($endpoint)->doInsert($item);
         }
     }
 

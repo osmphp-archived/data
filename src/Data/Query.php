@@ -136,6 +136,10 @@ class Query extends Object_
 
     public function insert(\stdClass $data): int {
         return $this->db->transaction(
-            fn() => $this->endpoint->insert($this, $data));
+            fn() => $this->doInsert($data));
+    }
+
+    public function doInsert(\stdClass $data): int {
+        return $this->endpoint->insert($this, $data);
     }
 }

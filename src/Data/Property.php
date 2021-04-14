@@ -22,15 +22,15 @@ use Osm\Data\Data\Filters\Condition;
  */
 class Property extends Object_
 {
-    public function __construct(array $data = []) {
-        if (isset($data['computed'])) {
-            $data['computed'] = create(Computed::class,
-                $data['computed']->type ?? null,
-                (array)$data['computed']);
-        }
-
-        parent::__construct($data);
-    }
+//    public function __construct(array $data = []) {
+//        if (isset($data['computed'])) {
+//            $data['computed'] = create(Computed::class,
+//                $data['computed']->type ?? null,
+//                (array)$data['computed']);
+//        }
+//
+//        parent::__construct($data);
+//    }
 
     protected function get_data(): Data {
         global $osm_app; /* @var App $osm_app */
@@ -61,5 +61,13 @@ class Property extends Object_
     }
 
     public function inserted(Query $query, mixed $value, int $id): void {
+    }
+
+    public function hydrate(\stdClass $data): Object_ {
+        throw new NotImplemented($this);
+    }
+
+    public function create(): void {
+        throw new NotImplemented($this);
     }
 }

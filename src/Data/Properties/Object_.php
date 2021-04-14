@@ -23,15 +23,15 @@ use function Osm\object_empty;
 #[Name('object')]
 class Object_ extends Property
 {
-    public function __construct(array $data = []) {
-        if (isset($data['ref'])) {
-            $data['ref'] = create(Ref::class,
-                $data['ref']->type ?? null,
-                (array)$data['ref']);
-        }
-
-        parent::__construct($data);
-    }
+//    public function __construct(array $data = []) {
+//        if (isset($data['ref'])) {
+//            $data['ref'] = create(Ref::class,
+//                $data['ref']->type ?? null,
+//                (array)$data['ref']);
+//        }
+//
+//        parent::__construct($data);
+//    }
 
     protected function get_properties(): array {
         $properties = [];
