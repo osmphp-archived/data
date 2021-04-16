@@ -9,32 +9,24 @@ use Osm\Core\Attributes\Name;
 use Osm\Core\Exceptions\NotImplemented;
 use Osm\Data\Data\Exceptions\UnknownProperty;
 use Osm\Data\Data\Filters\Condition;
+use Osm\Data\Data\Items;
 use Osm\Data\Data\Property;
 use Osm\Core\Attributes\Serialized;
 use Osm\Data\Data\Query;
+use Osm\Data\Data\Ref;
 use function Osm\create;
 use function Osm\object_empty;
 use function Osm\log;
 
 /**
  * @property ?string $endpoint #[Serialized]
- * @property Object_|Property $items #[Serialized]
+ * @property Items $items #[Serialized]
  * @property ?string $key #[Serialized]
+ * @property ?Ref $ref #[Serialized]
  */
 #[Name('array')]
 class Array_ extends Property
 {
-//    public function __construct(array $data = []) {
-//        if (isset($data['items'])) {
-//            $data['items']->id = $data['id'];
-//            $data['items'] = create(Property::class,
-//                $data['items']->type ?? null,
-//                (array)$data['items']);
-//        }
-//
-//        parent::__construct($data);
-//    }
-
     public function filter(TableQuery $query, string $expr,
         Condition $condition): void
     {
@@ -104,14 +96,14 @@ class Array_ extends Property
     }
 
     public function inserted(Query $query, mixed $value, int $id): void {
-        if (!$this->items->ref) {
+        if (!$this->ref) {
             throw new NotImplemented($this);
         }
 
-        $endpoint = $this->data->schema->endpoints[$this->items->ref->endpoint];
+        $endpoint = $this->data->schema->endpoints[$this->ref->endpoint];
 
         foreach ($this->array($value) as $item) {
-            $item->{$this->items->ref->property} = $id;
+            $item->{$this->ref->backref} = $id;
             $this->data->query($endpoint)->doInsert($item);
         }
     }
@@ -133,9 +125,21 @@ class Array_ extends Property
 
         foreach ($value as $key => $item) {
             $item->{$this->key} = $key;
-            $array[] = $item;
+            $array[$key] = $item;
         }
 
         return $array;
+    }
+
+    public function hydrate(mixed $item): mixed {
+        if ($item === null) {
+            return null;
+        }
+
+        if (is_object($item)) {
+            $item = $this->array($item);
+        }
+
+        return array_map(fn($value) => $this->items->hydrate($value), $item);
     }
 }

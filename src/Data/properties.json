@@ -27,12 +27,15 @@
         "class": {
           "type": "string"
         },
+        "key": {
+          "type": "string"
+        },
         "properties": {
           "type": "array",
+          "ref": { "endpoint": "/properties", "backref": "parent" },
           "items": {
             "type": "object",
-            "class": "Osm\\Data\\Data\\Property",
-            "ref": { "endpoint": "/properties", "backref": "parent" }
+            "class": "Osm\\Data\\Data\\Property"
           }
         },
         "items": {
@@ -41,18 +44,21 @@
           "properties": {
             "property": {
               "type": "object",
-              "ref": {}
+              "ref": {"container": true}
             },
             "type": {
+              "type": "string"
+            },
+            "class": {
               "type": "string"
             },
             "properties": {
               "type": "array",
               "key": "name",
+              "ref": { "endpoint": "/properties", "backref": "parent" },
               "items": {
                 "type": "object",
-                "class": "Osm\\Data\\Data\\Property",
-                "ref": { "endpoint": "/properties", "backref": "parent" }
+                "class": "Osm\\Data\\Data\\Property"
               }
             }
           }
@@ -63,7 +69,7 @@
           "properties": {
             "property": {
               "type": "object",
-              "ref": {}
+              "ref": {"container": true}
             },
             "type": {
               "type": "string"
@@ -91,7 +97,7 @@
           "properties": {
             "property": {
               "type": "object",
-              "ref": {}
+              "ref": {"container": true}
             },
             "endpoint": {
               "type": "string"

@@ -12,7 +12,7 @@ use Osm\Framework\Cache\Descendants;
 use function Osm\create;
 
 /**
- * @property Schema $schema #[Cached('data|schema')]
+ * @property Schema $schema #[Cached('data|schema', callback: 'schemaLoaded')]
  */
 class Data extends Object_
 {
@@ -23,5 +23,9 @@ class Data extends Object_
 
     protected function get_schema(): Schema {
         return Schema::new();
+    }
+
+    protected function schemaLoaded(): void {
+        $this->schema->loaded();
     }
 }

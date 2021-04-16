@@ -16,16 +16,6 @@ use function Osm\create;
  */
 class Scalar extends Property
 {
-//    public function __construct(array $data = []) {
-//        if (isset($data['column'])) {
-//            $data['column'] = create(Column::class,
-//                $data['column']->type ?? null,
-//                (array)$data['column']);
-//        }
-//
-//        parent::__construct($data);
-//    }
-
     public function select(TableQuery $query, string $expr) {
         if (isset($this->column)) {
             $query->addSelect("this.{$this->name}");
@@ -45,5 +35,9 @@ class Scalar extends Property
         else {
             $data->{$this->name} = $value;
         }
+    }
+
+    public function hydrate(mixed $item): mixed {
+        return $item;
     }
 }

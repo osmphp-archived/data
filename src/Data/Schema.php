@@ -8,7 +8,6 @@ use Osm\Core\App;
 use Osm\Core\Object_;
 use Osm\Core\Attributes\Serialized;
 use Osm\Data\Data\Properties\Array_;
-use Osm\Framework\Cache\Descendants;
 use Osm\Framework\Db\Db;
 use function Osm\create;
 use function Osm\merge;
@@ -21,7 +20,7 @@ use function Osm\merge;
  * @property Property[] $properties
  * @property Array_[] $endpoints
  * @property Data $data
- * @property MetaProperties\Array_ $meta
+ * @property \stdClass $meta
  */
 class Schema extends Object_
 {
@@ -48,7 +47,7 @@ class Schema extends Object_
         foreach ($this->db->table('properties')->get() as $item) {
             $item = $this->mergeData($item);
 
-            $this->all[$item->id] = $this->meta->items->hydrate($item);
+            $this->all[$item->id] = $this->hydrate($this->meta->items, $item);
 
             $parentId = $item->parent_id ?? 0;
             if (!isset($this->child_ids[$parentId])) {
@@ -60,6 +59,8 @@ class Schema extends Object_
                 $this->endpoint_ids[$item->endpoint] = $item->id;
             }
         }
+
+        $this->loaded();
     }
 
     protected function get_db(): Db {
@@ -89,26 +90,10 @@ class Schema extends Object_
         return $osm_app->data;
     }
 
-    protected function get_meta(): MetaProperty {
-        return $this->parseRecord($this->db->table('properties')
-            ->where('endpoint', '/properties')
-            ->whereNull('parent_id')
-            ->first());
-    }
+    protected function get_meta(): \stdClass {
+        return json_decode(file_get_contents(__DIR__ . '/properties.json'))
+            ->properties;
 
-    protected function parseRecord(\stdClass $item): MetaProperty {
-        $item = $this->mergeData($item);
-
-        $property = $this->createProperty($item);
-
-        if ($property instanceof MetaProperties\Object_) {
-            $property->properties = $this->loadChildProperties($property);
-        }
-        elseif($property instanceof MetaProperties\Array_) {
-            $property->items->properties = $this->loadChildProperties($property);
-        }
-
-        return $property;
     }
 
     protected function mergeData(\stdClass $item): \stdClass {
@@ -121,28 +106,97 @@ class Schema extends Object_
         return $item;
     }
 
-    protected function createProperty(\stdClass $property): MetaProperty
+    public function hydrate(\stdClass $meta, mixed $item): mixed
     {
-        return match ($property->type) {
-            'object' => MetaProperties\Object_::new((array)$property),
-            'array' => $this->createArray($property),
-            'string' => MetaProperties\String_::new((array)$property),
-            'number' => MetaProperties\Number::new((array)$property),
-            'boolean' => MetaProperties\Boolean::new((array)$property),
+        return match ($meta->type) {
+            'object' => $this->hydrateObject($meta, $item),
+            'array' => $this->hydrateArray($meta, $item),
+            'string', 'number', 'boolean' => $this->hydrateScalar($item),
         };
     }
 
-    protected function loadChildProperties(MetaProperty $property): array {
-        return $this->db->table('properties')
-            ->where('parent_id', $property->id)
-            ->get()
-            ->map(fn($item) => $this->parseRecord($item))
-            ->keyBy('name')
-            ->toArray();
+    protected function hydrateObject(\stdClass $meta, ?\stdClass $item)
+        : Object_|\stdClass|null
+    {
+        if ($item === null) {
+            return null;
+        }
+
+        $object = isset($meta->class)
+            ? create($meta->class, $item->type ?? null)
+            : new \stdClass();
+
+        foreach ($meta->properties as $propertyName => $property) {
+            if (($value = $this->hydrate($property,
+                $item->$propertyName ?? null)) !== null)
+            {
+                $object->$propertyName = $value;
+            }
+        }
+
+        return $object;
     }
 
-    protected function createArray(\stdClass $property): MetaProperties\Array_ {
-        $property->items = $this->createProperty($property->items);
-        return MetaProperties\Array_::new((array)$property);
+    protected function hydrateArray(\stdClass $meta, ?array $item): ?array
+    {
+        if ($item === null) {
+            return null;
+        }
+
+        return array_map(fn($value) => $this->hydrate($meta->items,
+            $value), $item);
+    }
+
+    protected function hydrateScalar(mixed $item): mixed
+    {
+        return $item;
+    }
+
+    public function loaded() {
+        $this->all = $this->resolveRefs(null, $this->meta, $this->all);
+    }
+
+    protected function resolveRefs(?\stdClass $parentMeta, \stdClass $meta,
+        mixed $item, ?Object_ $container = null): mixed
+    {
+        return match ($meta->type) {
+            'object' => $this->resolveObjectRefs($parentMeta, $meta, $item, $container),
+            'array' => $this->resolveArrayRefs($meta, $item, $container),
+            'string', 'number', 'boolean' => $item,
+        };
+    }
+
+    protected function resolveObjectRefs(?\stdClass $parentMeta, \stdClass $meta,
+        mixed $item, ?Object_ $container): mixed
+    {
+        if (isset($meta->ref->container)) {
+            return $container;
+        }
+
+        if ($item === null) {
+            return null;
+        }
+
+        if ($parentMeta->type == 'array' && isset($parentMeta->endpoint)) {
+            $container = $item;
+        }
+
+        foreach ($meta->properties ?? [] as $propertyName => $property) {
+            $item->$propertyName = $this->resolveRefs($meta, $property,
+            $item->$propertyName ?? null, $container);
+        }
+
+        return $item;
+    }
+
+    protected function resolveArrayRefs(\stdClass $meta, mixed $item,
+        ?Object_ $container): ?array
+    {
+        if ($item === null) {
+            return null;
+        }
+
+        return array_map(fn($value) => $this->resolveRefs($meta, $meta->items,
+            $value, $container), $item);
     }
 }

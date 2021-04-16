@@ -19,20 +19,11 @@ use function Osm\object_empty;
 /**
  * @property Property[] $properties
  * @property ?Ref $ref #[Serialized]
+ * @property string $class #[Serialized]
  */
 #[Name('object')]
 class Object_ extends Property
 {
-//    public function __construct(array $data = []) {
-//        if (isset($data['ref'])) {
-//            $data['ref'] = create(Ref::class,
-//                $data['ref']->type ?? null,
-//                (array)$data['ref']);
-//        }
-//
-//        parent::__construct($data);
-//    }
-
     protected function get_properties(): array {
         $properties = [];
 
@@ -96,5 +87,35 @@ class Object_ extends Property
                 $property->inserted($query, $value->{$property->name}, $id);
             }
         }
+    }
+
+    public function hydrate(mixed $item): mixed {
+        if ($item === null) {
+            return null;
+        }
+
+        $class = $this->class;
+        $data = [];
+
+        if (is_object($item)) {
+            foreach ($item as $propertyName => $value) {
+                $property = $this->properties[$propertyName];
+                if ($value = $property->hydrate($value)) {
+                    $data[$propertyName] = $value;
+                }
+            }
+        }
+        elseif ($this->ref && is_int($item)) {
+            $class = $this->data->schema->endpoints[$this->ref->endpoint]
+                ->items->class;
+            $data['id'] = $item;
+        }
+        else {
+            throw new NotImplemented($this);
+        }
+
+        return $class
+            ? create($class, $item->type ?? null, $data)
+            : (object)$data;
     }
 }
