@@ -57,7 +57,7 @@ class Property extends Object_
         throw new NotImplemented($this);
     }
 
-    public function create(): void {
+    public function create(Blueprints $data): void {
         throw new NotImplemented($this);
     }
 }

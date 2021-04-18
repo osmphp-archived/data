@@ -7,6 +7,7 @@ namespace Osm\Data\Data\Properties;
 use Illuminate\Database\Query\Builder as TableQuery;
 use Osm\Core\Attributes\Name;
 use Osm\Core\Exceptions\NotImplemented;
+use Osm\Data\Data\Blueprints;
 use Osm\Data\Data\Exceptions\UnknownProperty;
 use Osm\Data\Data\Filters\Condition;
 use Osm\Data\Data\Property;
@@ -117,5 +118,9 @@ class Object_ extends Property
         return $class
             ? create($class, $item->type ?? null, $data)
             : (object)$data;
+    }
+
+    public function create(Blueprints $data): void {
+        throw new NotImplemented($this);
     }
 }

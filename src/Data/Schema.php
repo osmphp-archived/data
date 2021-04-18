@@ -199,4 +199,9 @@ class Schema extends Object_
         return array_map(fn($value) => $this->resolveRefs($meta, $meta->items,
             $value, $container), $item);
     }
+
+    public function modify(callable $callback) {
+        $callback($blueprint = Blueprints::new());
+        $blueprint->run();
+    }
 }

@@ -7,6 +7,7 @@ namespace Osm\Data\Data\Properties;
 use Illuminate\Database\Query\Builder as TableQuery;
 use Osm\Core\Attributes\Name;
 use Osm\Core\Exceptions\NotImplemented;
+use Osm\Data\Data\Blueprints;
 use Osm\Data\Data\Exceptions\UnknownProperty;
 use Osm\Data\Data\Filters\Condition;
 use Osm\Data\Data\Items;
@@ -17,12 +18,14 @@ use Osm\Data\Data\Ref;
 use function Osm\create;
 use function Osm\object_empty;
 use function Osm\log;
+use Illuminate\Database\Schema\Blueprint as TableBlueprint;
 
 /**
  * @property ?string $endpoint #[Serialized]
  * @property Items $items #[Serialized]
  * @property ?string $key #[Serialized]
  * @property ?Ref $ref #[Serialized]
+ * @property string $table
  */
 #[Name('array')]
 class Array_ extends Property
@@ -141,5 +144,26 @@ class Array_ extends Property
         }
 
         return array_map(fn($value) => $this->items->hydrate($value), $item);
+    }
+
+    public function create(Blueprints $data): void {
+        if (!$this->endpoint) {
+            return;
+        }
+
+        $data->createTable($this->table, function() use ($data) {
+            foreach ($this->items->properties as $property) {
+                $property->create($data);
+            }
+
+            $data->blueprint()->callbacks[] = function(TableBlueprint $table) {
+                $table->json('data')->nullable();
+            };
+        });
+    }
+
+    protected function get_table(): string {
+        return str_replace('/', '__',
+            ltrim($this->endpoint, '/'));
     }
 }

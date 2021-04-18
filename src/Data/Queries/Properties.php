@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Osm\Data\Data\Queries;
 
-use Illuminate\Database\Schema\Blueprint;
 use Osm\Core\Attributes\Name;
+use Osm\Data\Data\Blueprints;
 use Osm\Data\Data\Property;
 use Osm\Data\Data\Query;
 
@@ -18,7 +18,9 @@ class Properties extends Query
 
             /* @var Property $property */
             $property = $this->endpoint->items->hydrate($data);
-            $property->create();
+            $this->data->schema->modify(function (Blueprints $data) use ($property) {
+                $property->create($data);
+            });
 
             return $id;
         });
