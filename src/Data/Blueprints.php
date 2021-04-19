@@ -25,40 +25,27 @@ class Blueprints extends Object_
     protected array $blueprint_stack = [];
 
     public function run(): void {
-        $undo = [];
-
-        try {
-            foreach ($this->blueprints as $blueprint) {
-                $this->{"run_{$blueprint->type}"}($blueprint, $undo);
-            }
-        }
-        catch (\Throwable $e) {
-            foreach ($undo as $callback) {
-                $callback();
-            }
-
-            throw $e;
+        foreach ($this->blueprints as $blueprint) {
+            $this->{"run_{$blueprint->type}"}($blueprint);
         }
     }
 
-    protected function run_create_table(\stdClass|Blueprint $blueprint,
-        array &$undo): void
-    {
+    protected function run_create_table(\stdClass|Blueprint $blueprint): void {
         if (empty($blueprint->callbacks)) {
             return;
         }
 
         $this->db->create($blueprint->name,
-            function(TableBlueprint $blueprint) use ($blueprint) {
+            function(TableBlueprint $table) use ($blueprint) {
                 foreach ($blueprint->callbacks as $callback) {
-                    $callback($blueprint);
+                    $callback($table);
                 }
             }
         );
 
-        $undo[] = function() use ($blueprint) {
+        $this->db->rolledBack(function() use ($blueprint) {
             $this->db->drop($blueprint->name);
-        };
+        });
     }
 
     public function createTable(string $table, callable $callback) {
@@ -78,7 +65,7 @@ class Blueprints extends Object_
         }
     }
 
-    public function blueprint(): ?Blueprint {
+    public function blueprint(): \stdClass|Blueprint|null {
         if (!($count = count($this->blueprint_stack))) {
             return null;
         }
