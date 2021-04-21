@@ -44,8 +44,10 @@ class Scalar extends Property
     }
 
     public function create(Blueprints $data): void {
-        if ($this->column) {
-            throw new NotImplemented($this);
+        if (!$this->column) {
+            return;
         }
+
+        throw new NotImplemented($this);
     }
 }

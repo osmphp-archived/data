@@ -10,7 +10,7 @@ use Osm\Framework\Http\Client;
 use Osm\Runtime\Apps;
 use PHPUnit\Framework\TestCase;
 
-class test_01_creation extends TestCase
+class test_03_creation extends TestCase
 {
     protected ?Client $client;
 
@@ -67,7 +67,7 @@ class test_01_creation extends TestCase
             : null;
     }
 
-    public function test_json_column() {
+    public function test_json_scalars() {
         // GIVEN an HTTP client processing requests in this very process
         $this->api(function() {
             // WHEN you insert an array with assigned endpoint
@@ -95,6 +95,38 @@ EOT);
 
             // AND there is no dedicated column - as requested
             $this->assertFalse($schema->hasColumn('products', 'sku'));
+        });
+    }
+
+    public function test_explicit_scalars() {
+        // GIVEN an HTTP client processing requests in this very process
+        $this->api(function() {
+            // WHEN you insert an array with assigned endpoint
+            $response = $this->request(<<<EOT
+POST /properties/insert
+{
+    "name": "products",
+    "type": "array",
+    "endpoint": "/products",
+    "items": {
+        "type": "object",
+        "properties": {
+            "sku": {
+                "type": "string",
+                "column": { "unique": true }
+            }
+        }
+    }
+}
+EOT);
+
+            // THEN the underlying table is actually created
+            global $osm_app; /* @var App $osm_app */
+            $schema = $osm_app->db->connection->getSchemaBuilder();
+            $this->assertTrue($schema->hasTable('products'));
+
+            // AND there is no dedicated column - as requested
+            $this->assertTrue($schema->hasColumn('products', 'sku'));
         });
     }
 }

@@ -2,10 +2,22 @@
 
 declare(strict_types=1);
 
+use Osm\Data\Samples\App;
 use Osm\Runtime\Apps;
 
 require 'vendor/autoload.php';
 umask(0);
 
-Apps::$project_path = dirname(dirname(__DIR__));
-Apps::compile(\Osm\Data\Samples\App::class);
+try {
+    Apps::$project_path = dirname(dirname(__DIR__));
+    Apps::compile(App::class);
+    Apps::run(Apps::create(App::class), function(App $app) {
+        $app->cache->clear();
+        $app->migrations()->fresh();
+        $app->migrations()->up(\Osm\Data\Data\Module::class);
+    });
+}
+catch (Throwable $e) {
+    echo "{$e->getMessage()}\n{$e->getTraceAsString()}\n";
+    throw $e;
+}

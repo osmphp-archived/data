@@ -1,6 +1,7 @@
 {
   "properties": {
     "type": "array",
+    "key": "name",
     "endpoint": "/properties",
     "items": {
       "type": "object",
@@ -32,6 +33,7 @@
         },
         "properties": {
           "type": "array",
+          "key": "name",
           "ref": { "endpoint": "/properties", "backref": "parent" },
           "items": {
             "type": "object",
