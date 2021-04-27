@@ -7,7 +7,7 @@ namespace Osm\Data\Data\Exceptions;
 use Osm\Data\Data\Property;
 use function Osm\__;
 
-class UnknownProperty extends \Exception
+class UndefinedProperty extends \Exception
 {
     public function __construct(Property $parent, string $propertyName,
         $code = 0, \Throwable $previous = null)

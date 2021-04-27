@@ -8,7 +8,7 @@ use Illuminate\Database\Query\Builder as TableQuery;
 use Osm\Core\Attributes\Name;
 use Osm\Core\Exceptions\NotImplemented;
 use Osm\Data\Data\Blueprints;
-use Osm\Data\Data\Exceptions\UnknownProperty;
+use Osm\Data\Data\Exceptions\UndefinedProperty;
 use Osm\Data\Data\Filters\Condition;
 use Osm\Data\Data\Items;
 use Osm\Data\Data\Property;
@@ -66,7 +66,7 @@ class Array_ extends Property
 
         foreach ($data as $propertyName => $value) {
             if (!isset($this->items->properties[$propertyName])) {
-                throw new UnknownProperty($this, "items.{$propertyName}");
+                throw new UndefinedProperty($this, "items.{$propertyName}");
             }
 
             $property = $this->items->properties[$propertyName];
@@ -165,5 +165,11 @@ class Array_ extends Property
     protected function get_table(): string {
         return str_replace('/', '__',
             ltrim($this->endpoint, '/'));
+    }
+
+    protected function get_full_name(): string {
+        return $this->parent
+            ? "{$this->parent->full_name}.{$this->name}[]"
+            : "{$this->name}[]";
     }
 }

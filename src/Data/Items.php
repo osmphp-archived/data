@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Osm\Data\Data;
 
 use Osm\Core\App;
+use Osm\Core\Array_;
 use Osm\Core\Object_;
 use Osm\Core\Attributes\Serialized;
 use function Osm\create;
@@ -24,7 +25,7 @@ class Items extends Object_
         return $osm_app->data;
     }
 
-    protected function get_properties(): array {
+    protected function get_properties(): array|Array_ {
         if ($this->property->ref) {
             return $this->data->schema
                 ->endpoints[$this->property->ref->endpoint]
@@ -38,7 +39,11 @@ class Items extends Object_
                 $this->data->schema->all[$id];
         }
 
-        return $properties;
+        return new Array_($properties, fn(string $property) =>
+            __("Undefined property ':this.:property'", [
+                    'this' => $this->property->full_name,
+                    'property' => $property,
+                ]));
     }
 
     public function hydrate(?\stdClass $item): Object_|\stdClass|null {

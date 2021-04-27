@@ -19,6 +19,7 @@ use Osm\Data\Data\Filters\Condition;
  * @property Data $data
  * @property ?Property $parent
  * @property ?Computed $computed #[Serialized]
+ * @property string $full_name
  */
 class Property extends Object_
 {
@@ -58,6 +59,10 @@ class Property extends Object_
     }
 
     public function create(Blueprints $data): void {
+        throw new NotImplemented($this);
+    }
+
+    protected function get_full_name(): string {
         throw new NotImplemented($this);
     }
 }

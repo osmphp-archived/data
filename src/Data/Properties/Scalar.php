@@ -50,4 +50,8 @@ class Scalar extends Property
 
         throw new NotImplemented($this);
     }
+
+    protected function get_full_name(): string {
+        return $this->name;
+    }
 }

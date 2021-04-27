@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Osm\Data\Data;
 
 use Osm\Core\App;
+use Osm\Core\Array_;
+use Osm\Core\Exceptions\NotSupported;
 use Osm\Core\Object_;
 use Osm\Core\Attributes\Serialized;
-use Osm\Data\Data\Properties\Array_;
 use Osm\Framework\Db\Db;
+use function Osm\__;
 use function Osm\create;
 use function Osm\merge;
 
@@ -18,7 +20,7 @@ use function Osm\merge;
  * @property int[] $endpoint_ids #[Serialized]
  * @property Db $db
  * @property Property[] $properties
- * @property Array_[] $endpoints
+ * @property Properties\Array_[] $endpoints
  * @property Data $data
  * @property \stdClass $meta
  */
@@ -112,6 +114,8 @@ class Schema extends Object_
             'object' => $this->hydrateObject($meta, $item),
             'array' => $this->hydrateArray($meta, $item),
             'string', 'number', 'boolean' => $this->hydrateScalar($item),
+            default => throw new NotSupported(__(
+                "Unsupported property type :type", ['type' => $meta->type]))
         };
     }
 
@@ -190,10 +194,15 @@ class Schema extends Object_
     }
 
     protected function resolveArrayRefs(\stdClass $meta, mixed $item,
-        ?Object_ $container): ?array
+        ?Object_ $container): array|Array_|null
     {
         if ($item === null) {
             return null;
+        }
+
+        if ($item instanceof Array_) {
+            return $item->map(fn($value) =>
+                $this->resolveRefs($meta, $meta->items, $value, $container));
         }
 
         return array_map(fn($value) => $this->resolveRefs($meta, $meta->items,

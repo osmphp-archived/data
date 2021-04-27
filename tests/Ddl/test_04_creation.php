@@ -10,11 +10,11 @@ use Osm\Framework\Http\Client;
 use Osm\Runtime\Apps;
 use PHPUnit\Framework\TestCase;
 
-class test_03_creation extends TestCase
+class test_04_creation extends TestCase
 {
     protected ?Client $client;
 
-    protected function api(callable $callback): void {
+    protected function dryRun(callable $callback): void {
         Apps::run(Apps::create(App::class),
             function(App $app) use ($callback) {
                 $app->db->dryRun(function() use ($callback){
@@ -69,7 +69,7 @@ class test_03_creation extends TestCase
 
     public function test_json_scalars() {
         // GIVEN an HTTP client processing requests in this very process
-        $this->api(function() {
+        $this->dryRun(function() {
             // WHEN you insert an array with assigned endpoint
             $response = $this->request(<<<EOT
 POST /properties/insert
@@ -100,7 +100,7 @@ EOT);
 
     public function test_explicit_scalars() {
         // GIVEN an HTTP client processing requests in this very process
-        $this->api(function() {
+        $this->dryRun(function() {
             // WHEN you insert an array with assigned endpoint
             $response = $this->request(<<<EOT
 POST /properties/insert

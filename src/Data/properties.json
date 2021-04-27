@@ -11,6 +11,10 @@
           "type": "number",
           "column": {}
         },
+        "parent_id": {
+          "type": "number",
+          "column": {}
+        },
         "parent": {
           "type": "object",
           "ref": { "endpoint": "/properties", "on_delete": "cascade" }
@@ -109,6 +113,9 @@
             },
             "backref": {
               "type": "string"
+            },
+            "container": {
+              "type": "boolean"
             }
           }
         }
