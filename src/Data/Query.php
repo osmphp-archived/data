@@ -10,7 +10,6 @@ use Osm\Core\Object_;
 use Osm\Data\Data\Filters\Condition;
 use Osm\Data\Data\Hints\Property;
 use Osm\Data\Data\Hints\Result;
-use Osm\Data\Data\Properties\Array_;
 use Osm\Framework\Db\Db;
 use Osm\Framework\Search\Search;
 

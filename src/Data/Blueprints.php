@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Osm\Data\Data;
 
 use Osm\Core\App;
+use Osm\Core\Object_;
 use Osm\Data\Data\Hints\Blueprint;
-use Osm\Data\Data\Properties\Object_;
 use Illuminate\Database\Schema\Blueprint as TableBlueprint;
 use Osm\Framework\Db\Db;
 

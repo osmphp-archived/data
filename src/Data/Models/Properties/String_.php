@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Osm\Data\Data\Properties;
+namespace Osm\Data\Data\Models\Properties;
 
 use Osm\Core\Attributes\Name;
 
 #[Name('string')]
 class String_ extends Scalar
 {
+    public string $type = 'string';
 }
