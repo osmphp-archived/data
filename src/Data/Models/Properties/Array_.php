@@ -41,4 +41,18 @@ class Array_ extends Property
 
         throw new NotImplemented($this);
     }
+
+    public function dehydrate(mixed $hydrated): mixed {
+        if ($hydrated === null) {
+            return null;
+        }
+
+        if (!is_array($hydrated)) {
+            throw new InvalidType(__("Array expected"));
+        }
+
+        return array_map(
+            fn($value) => $this->item->dehydrate($value),
+            $hydrated);
+    }
 }

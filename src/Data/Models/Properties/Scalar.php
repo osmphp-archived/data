@@ -11,4 +11,8 @@ class Scalar extends Property
     public function hydrate(mixed $dehydrated): mixed {
         return $dehydrated;
     }
+
+    public function dehydrate(mixed $hydrated): mixed {
+        return $hydrated;
+    }
 }

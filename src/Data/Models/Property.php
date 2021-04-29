@@ -24,6 +24,6 @@ class Property extends Model
     }
 
     public function dehydrate(mixed $hydrated): mixed {
-        return dehydrate($hydrated);
+        throw new NotImplemented($this);
     }
 }

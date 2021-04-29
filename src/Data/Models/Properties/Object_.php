@@ -4,17 +4,25 @@ declare(strict_types=1);
 
 namespace Osm\Data\Data\Models\Properties;
 
+use Osm\Core\App;
+use Osm\Core\Array_ as CoreArray;
 use Osm\Core\Attributes\Name;
+use Osm\Core\BaseModule;
 use Osm\Core\Exceptions\NotImplemented;
 use Osm\Data\Data\Exceptions\InvalidType;
+use Osm\Data\Data\Model;
 use Osm\Data\Data\Models\Class_;
 use Osm\Data\Data\Models\Property;
 use Osm\Data\Data\Attributes\Migration;
+use Osm\Data\Data\Module as DataModule;
+use Osm\Framework\Cache\Descendants;
 use function Osm\__;
+use function Osm\create;
 
 /**
  * @property int $type_class_id #[Migration('schema')]
  * @property Class_ $object_class
+ * @property DataModule $data_module $descendants
  */
 #[Name('object')]
 class Object_ extends Property
@@ -43,10 +51,52 @@ class Object_ extends Property
             }
         }
 
-        if (!$this->object_class->name) {
-            return (object)$data;
+        return ($className = $this->className())
+            ? create($className, null, $data)
+            : (object)$data;
+    }
+
+    public function dehydrate(mixed $hydrated): mixed {
+        if ($hydrated === null) {
+            return null;
         }
 
+        if (!is_object($hydrated)) {
+            throw new InvalidType(__("Object expected"));
+        }
+
+        if (!$this->object_class) {
+            return $hydrated;
+        }
+
+        $dehydrated = new \stdClass();
+
+        foreach ($hydrated as $propertyName => $value) {
+            $property = $this->object_class->properties[$propertyName] ?? null;
+            if ($property && ($value = $property->dehydrate($value))) {
+                $dehydrated->$propertyName = $value;
+            }
+        }
+
+        return $dehydrated;
+    }
+
+    protected function get_data_module(): BaseModule {
+        global $osm_app; /* @var App $osm_app */
+
+        return $osm_app->modules[DataModule::class];
+    }
+
+    protected function className(): ?string {
+        if (!isset($this->object_class->name)) {
+            return null;
+        }
+
+        $className = $this->data_module->models[$this->object_class->name];
+
+        if (!$this->object_class->subtype_by) {
+            return $className;
+        }
         throw new NotImplemented($this);
     }
 }

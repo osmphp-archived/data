@@ -14,6 +14,7 @@ use Osm\Data\Data\Model;
  * @property int $parent_id #[Migration('schema')]
  * @property string $endpoint #[Migration('schema')]
  * @property Property[] $properties
+ * @property string $subtype_by #[Migration('schema')]
  */
 #[Name('class'), Migration('schema'), Endpoint('/classes')]
 class Class_ extends Model
