@@ -24,7 +24,7 @@ use function Osm\create;
  * @property Class_ $object_class
  * @property DataModule $data_module $descendants
  */
-#[Name('object')]
+#[Name('property/object')]
 class Object_ extends Property
 {
     public string $type = 'object';
@@ -51,7 +51,7 @@ class Object_ extends Property
             }
         }
 
-        return ($className = $this->className())
+        return ($className = $this->className($data))
             ? create($className, null, $data)
             : (object)$data;
     }
@@ -87,16 +87,19 @@ class Object_ extends Property
         return $osm_app->modules[DataModule::class];
     }
 
-    protected function className(): ?string {
+    protected function className(array $data): ?string {
         if (!isset($this->object_class->name)) {
             return null;
         }
 
-        $className = $this->data_module->models[$this->object_class->name];
+        $name = $this->object_class->name;
 
-        if (!$this->object_class->subtype_by) {
-            return $className;
+        if ($this->object_class->subtype_by &&
+            isset($data[$this->object_class->subtype_by]))
+        {
+            $name = "{$name}/{$data[$this->object_class->subtype_by]}";
         }
-        throw new NotImplemented($this);
+
+        return $this->data_module->models[$name];
     }
 }

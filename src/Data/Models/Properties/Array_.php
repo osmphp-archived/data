@@ -17,7 +17,7 @@ use function Osm\__;
  * @property Property $item
  * @property ArrayClass $array_class
  */
-#[Name('array')]
+#[Name('property/array')]
 class Array_ extends Property
 {
     public string $type = 'array';

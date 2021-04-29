@@ -6,7 +6,7 @@ namespace Osm\Data\Data\Models\Properties;
 
 use Osm\Core\Attributes\Name;
 
-#[Name('string')]
+#[Name('property/string')]
 class String_ extends Scalar
 {
     public string $type = 'string';

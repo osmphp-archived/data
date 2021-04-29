@@ -7,6 +7,8 @@ namespace Osm\Data\Tests\Ddl;
 use Osm\Core\Array_;
 use Osm\Data\Data\Models\Class_;
 use Osm\Data\Samples\Products\Models\Product;
+use Osm\Data\Samples\Products\Models\Products;
+use Osm\Data\Samples\Products\Models\TaxRate;
 use Osm\Framework\TestCase;
 use Osm\Data\Data\Models\Properties;
 
@@ -34,7 +36,7 @@ class test_01_hydration extends TestCase
         $class = Class_::new([
             'properties' => new Array_([
                 'sku' => Properties\String_::new(),
-            ], 'Unknown property :key'),
+            ], "Unknown property ':key'"),
         ]);
         $property = Properties\Object_::new([
             'object_class' => $class,
@@ -59,7 +61,7 @@ class test_01_hydration extends TestCase
         $class = Class_::new([
             'properties' => new Array_([
                 'sku' => Properties\String_::new(),
-            ], 'Unknown property :key'),
+            ], "Unknown property ':key'"),
         ]);
         $item = Properties\Object_::new([
             'object_class' => $class,
@@ -89,23 +91,51 @@ class test_01_hydration extends TestCase
     public function test_typed_object() {
         // GIVEN a typed object property
         $class = Class_::new([
-            'name' => 'product',
+            'name' => 'tax_rate',
             'properties' => new Array_([
-                'sku' => Properties\String_::new(),
-            ], 'Unknown property :key'),
+                'country_code' => Properties\String_::new(),
+            ], "Unknown property ':key'"),
         ]);
         $property = Properties\Object_::new([
             'object_class' => $class,
         ]);
 
         // WHEN you hydrate/dehydrate a value
-        $value = (object)['sku' => 'sku1'];
+        $value = (object)['country_code' => 'US'];
         $hydrated = $property->hydrate($value);
         $dehydrated = $property->dehydrate($hydrated);
 
         // THEN it hydrates to a plain object
         // AND dehydrates back to a plain object
-        $this->assertInstanceOf(Product::class, $hydrated);
+        $this->assertInstanceOf(TaxRate::class, $hydrated);
+        $this->assertEquals('US', $hydrated->country_code);
+
+        $this->assertInstanceOf(\stdClass::class, $dehydrated);
+        $this->assertEquals('US', $dehydrated->country_code);
+    }
+
+    public function test_subtyped_object() {
+        // GIVEN a typed object property
+        $class = Class_::new([
+            'name' => 'product',
+            'subtype_by' => 'type',
+            'properties' => new Array_([
+                'sku' => Properties\String_::new(),
+                'type' => Properties\String_::new(),
+            ], "Unknown property ':key'"),
+        ]);
+        $property = Properties\Object_::new([
+            'object_class' => $class,
+        ]);
+
+        // WHEN you hydrate/dehydrate a value
+        $value = (object)['type' => 'configurable', 'sku' => 'sku1'];
+        $hydrated = $property->hydrate($value);
+        $dehydrated = $property->dehydrate($hydrated);
+
+        // THEN it hydrates to a plain object
+        // AND dehydrates back to a plain object
+        $this->assertInstanceOf(Products\Configurable::class, $hydrated);
         $this->assertEquals('sku1', $hydrated->sku);
 
         $this->assertInstanceOf(\stdClass::class, $dehydrated);
