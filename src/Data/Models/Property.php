@@ -8,6 +8,7 @@ use Osm\Core\Attributes\Name;
 use Osm\Core\Exceptions\NotImplemented;
 use Osm\Data\Data\Attributes\Endpoint;
 use Osm\Data\Data\Attributes\Migration;
+use Osm\Data\Data\Attributes\SubtypeBy;
 use Osm\Data\Data\Model;
 use function Osm\dehydrate;
 
@@ -16,7 +17,7 @@ use function Osm\dehydrate;
  * @property string $name #[Migration('schema')]
  * @property string $type #[Migration('schema')]
  */
-#[Name('property'), Migration('schema'), Endpoint('/properties')]
+#[Name('property'), Migration('schema'), Endpoint('/properties'), SubtypeBy('type')]
 class Property extends Model
 {
     public function hydrate(mixed $dehydrated): mixed {
