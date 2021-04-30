@@ -27,4 +27,8 @@ class Property extends Model
     public function dehydrate(mixed $hydrated): mixed {
         throw new NotImplemented($this);
     }
+
+    public function parent(mixed $hydrated, ?Model $parent = null): void {
+        throw new NotImplemented($this);
+    }
 }

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Osm\Data\Data\Models\Properties;
 
+use Osm\Core\Array_ as CoreArray;
 use Osm\Core\Attributes\Name;
 use Osm\Core\Exceptions\NotImplemented;
 use Osm\Data\Data\Exceptions\InvalidType;
+use Osm\Data\Data\Model;
 use Osm\Data\Data\Models\ArrayClass;
 use Osm\Data\Data\Models\Class_;
 use Osm\Data\Data\Models\Property;
@@ -39,6 +41,11 @@ class Array_ extends Property
             return $hydrated;
         }
 
+        if ($this->array_class->not_found_message) {
+            return new CoreArray($hydrated,
+                $this->array_class->not_found_message);
+        }
+
         throw new NotImplemented($this);
     }
 
@@ -47,12 +54,32 @@ class Array_ extends Property
             return null;
         }
 
-        if (!is_array($hydrated)) {
+        if (is_array($hydrated)) {
+            return array_map(
+                fn($value) => $this->item->dehydrate($value),
+                $hydrated);
+        }
+
+        if ($hydrated instanceof CoreArray) {
+            return $hydrated
+                ->map(fn($value) => $this->item->dehydrate($value))
+                ->items;
+        }
+
+        throw new InvalidType(__("Array expected"));
+    }
+
+    public function parent(mixed $hydrated, ?Model $parent = null): void {
+        if ($hydrated === null) {
+            return;
+        }
+
+        if (!is_array($hydrated) && !($hydrated instanceof CoreArray)) {
             throw new InvalidType(__("Array expected"));
         }
 
-        return array_map(
-            fn($value) => $this->item->dehydrate($value),
-            $hydrated);
+        foreach ($hydrated as $value) {
+            $this->item->parent($value, $parent);
+        }
     }
 }

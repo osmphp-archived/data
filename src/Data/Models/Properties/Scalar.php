@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Data\Data\Models\Properties;
 
+use Osm\Data\Data\Model;
 use Osm\Data\Data\Models\Property;
 
 class Scalar extends Property
@@ -14,5 +15,9 @@ class Scalar extends Property
 
     public function dehydrate(mixed $hydrated): mixed {
         return $hydrated;
+    }
+
+    public function parent(mixed $hydrated, ?Model $parent = null): void {
+        // do nothing
     }
 }

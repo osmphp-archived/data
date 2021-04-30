@@ -102,4 +102,29 @@ class Object_ extends Property
 
         return $this->data_module->models[$name];
     }
+
+    public function parent(mixed $hydrated, ?Model $parent = null): void {
+        if ($hydrated === null) {
+            return;
+        }
+
+        if (!is_object($hydrated)) {
+            throw new InvalidType(__("Object expected"));
+        }
+
+        if (!$this->object_class) {
+            return;
+        }
+
+        if ($parent) {
+            $hydrated->__parent = $parent;
+        }
+
+        foreach ($hydrated as $propertyName => $value) {
+            $property = $this->object_class->properties[$propertyName] ?? null;
+            if ($property) {
+                $property->parent($value, $hydrated);
+            }
+        }
+    }
 }

@@ -10,6 +10,7 @@ use Osm\Data\Data\Attributes\Migration;
 /**
  * @property int $id #[Migration('standard')]
  * @property \stdClass $json #[Migration('standard')]
+ * @property Model $__parent
  */
 class Model extends Object_
 {

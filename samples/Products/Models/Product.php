@@ -13,6 +13,8 @@ use Osm\Data\Data\Model;
 /**
  * @property string $sku #[Migration('products')]
  * @property string $type #[Migration('products')]
+ * @property Product[] $related_products #[Migration('products')]
+ * @property Inventory $inventory #[Migration('products')]
  */
 #[Name('product'), Migration('products'), Endpoint('/products'), SubtypeBy('type')]
 class Product extends Model
