@@ -12,7 +12,7 @@ use Osm\Data\Data\Model;
 use Osm\Data\Data\Models\ArrayClass;
 use Osm\Data\Data\Models\Class_;
 use Osm\Data\Data\Models\Property;
-use Osm\Data\Data\Attributes\Migration;
+use Osm\Data\Data\Attributes\Schema;
 use function Osm\__;
 
 /**

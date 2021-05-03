@@ -13,16 +13,16 @@ use Osm\Data\Data\Exceptions\InvalidType;
 use Osm\Data\Data\Model;
 use Osm\Data\Data\Models\Class_;
 use Osm\Data\Data\Models\Property;
-use Osm\Data\Data\Attributes\Migration;
+use Osm\Data\Data\Attributes\Schema;
 use Osm\Data\Data\Module as DataModule;
 use Osm\Framework\Cache\Descendants;
 use function Osm\__;
 use function Osm\create;
 
 /**
- * @property int $type_class_id #[Migration('schema')]
+ * @property int $type_class_id #[Schema('schema')]
  * @property Class_ $object_class
- * @property DataModule $data_module $descendants
+ * @property DataModule $data_module
  */
 #[Name('property/object')]
 class Object_ extends Property

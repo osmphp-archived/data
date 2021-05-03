@@ -6,17 +6,17 @@ namespace Osm\Data\Data\Models;
 
 use Osm\Core\Attributes\Name;
 use Osm\Data\Data\Attributes\Endpoint;
-use Osm\Data\Data\Attributes\Migration;
+use Osm\Data\Data\Attributes\Schema;
 use Osm\Data\Data\Model;
 
 /**
- * @property string $name #[Migration('schema')]
- * @property int $parent_id #[Migration('schema')]
- * @property string $endpoint #[Migration('schema')]
+ * @property string $name #[Schema('schema')]
+ * @property int $parent_id #[Schema('schema')]
+ * @property string $endpoint #[Schema('schema')]
  * @property Property[] $properties
- * @property string $subtype_by #[Migration('schema')]
+ * @property string $subtype_by #[Schema('schema')]
  */
-#[Name('class'), Migration('schema'), Endpoint('/classes')]
+#[Name('class'), Schema('schema'), Endpoint('/classes')]
 class Class_ extends Model
 {
 
