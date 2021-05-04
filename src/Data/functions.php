@@ -15,8 +15,14 @@ namespace Osm {
         return true;
     }
 
-    function reflect(string $schema): Reflection {
-        return Reflection::new(['schema' => $schema])->reflect();
+    function reflect(string $schema, array $classIds = [],
+        string $module = null): Reflection
+    {
+        return Reflection::new([
+            'module' => $module,
+            'schema' => $schema,
+            'class_ids' => $classIds,
+        ])->reflect();
     }
 
     function id(string $prefix = 'new-'): string {
