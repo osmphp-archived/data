@@ -9,7 +9,13 @@ use Osm\Data\Data\Models\Property;
 
 class Scalar extends Property
 {
-    public function hydrate(mixed $dehydrated): mixed {
+    public function hydrate(mixed $dehydrated, array &$identities = null)
+        : mixed
+    {
+        if ($identities === null) {
+            $identities = [];
+        }
+
         return $dehydrated;
     }
 
@@ -17,7 +23,9 @@ class Scalar extends Property
         return $hydrated;
     }
 
-    public function parent(mixed $hydrated, ?Model $parent = null): void {
+    public function resolve(mixed $hydrated, array &$identities = null,
+        ?Model $parent = null): void
+    {
         // do nothing
     }
 }

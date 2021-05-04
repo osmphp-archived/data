@@ -9,6 +9,7 @@ use Osm\Core\Array_ as CoreArray;
 use Osm\Core\Attributes\Name;
 use Osm\Core\BaseModule;
 use Osm\Core\Exceptions\NotImplemented;
+use Osm\Data\Data\Exceptions\CircularReference;
 use Osm\Data\Data\Exceptions\InvalidType;
 use Osm\Data\Data\Model;
 use Osm\Data\Data\Models\Class_;
@@ -29,7 +30,13 @@ class Object_ extends Property
 {
     public string $type = 'object';
 
-    public function hydrate(mixed $dehydrated): mixed {
+    public function hydrate(mixed $dehydrated, array &$identities = null)
+        : mixed
+    {
+        if ($identities === null) {
+            $identities = [];
+        }
+
         if ($dehydrated === null) {
             return null;
         }
@@ -37,6 +44,16 @@ class Object_ extends Property
         if (!is_object($dehydrated)) {
             throw new InvalidType(__("Object expected"));
         }
+
+        // register all dehydrated objects in `$identities['all']` map. If some
+        // object gets to be registered twice, it's a circular reference
+        if (!isset($identities['all'])) {
+            $identities['all'] = new \WeakMap();
+        }
+        if (isset($identities['all'][$dehydrated])) {
+            throw new CircularReference(__("Circular reference detected"));
+        }
+        $identities['all'][$dehydrated] = true;
 
         if (!$this->object_class) {
             return $dehydrated;
@@ -46,14 +63,25 @@ class Object_ extends Property
 
         foreach ($dehydrated as $propertyName => $value) {
             $property = $this->object_class->properties[$propertyName];
-            if ($value = $property->hydrate($value)) {
+            if ($value = $property->hydrate($value, $identities)) {
                 $data[$propertyName] = $value;
             }
         }
 
-        return ($className = $this->className($data))
+        $hydrated = ($className = $this->className($data))
             ? create($className, null, $data)
             : (object)$data;
+
+        if (isset($hydrated->id) && isset($this->object_class->endpoint)) {
+            if (!isset($identities[$this->object_class->endpoint])) {
+                $identities[$this->object_class->endpoint] = [];
+                $identities[$this->object_class->endpoint][$hydrated->id]
+                    = $hydrated;
+            }
+        }
+
+        return $hydrated;
+
     }
 
     public function dehydrate(mixed $hydrated): mixed {
@@ -103,7 +131,9 @@ class Object_ extends Property
         return $this->data_module->models[$name];
     }
 
-    public function parent(mixed $hydrated, ?Model $parent = null): void {
+    public function resolve(mixed $hydrated, array &$identities = null,
+        ?Model $parent = null): void
+    {
         if ($hydrated === null) {
             return;
         }
@@ -123,7 +153,7 @@ class Object_ extends Property
         foreach ($hydrated as $propertyName => $value) {
             $property = $this->object_class->properties[$propertyName] ?? null;
             if ($property) {
-                $property->parent($value, $hydrated);
+                $property->resolve($value, $identities, $hydrated);
             }
         }
     }

@@ -35,13 +35,12 @@ class test_01_hydration extends TestCase
 
     public function test_plain_object() {
         // GIVEN an object property
-        $class = Class_::new([
-            'properties' => new Array_([
-                'sku' => Properties\String_::new(),
-            ], "Unknown property ':key'"),
-        ]);
         $property = Properties\Object_::new([
-            'object_class' => $class,
+            'object_class' => Class_::new([
+                'properties' => new Array_([
+                    'sku' => Properties\String_::new(),
+                ], "Unknown property ':key'"),
+            ]),
         ]);
 
         // WHEN you hydrate/dehydrate a value
@@ -60,16 +59,14 @@ class test_01_hydration extends TestCase
 
     public function test_plain_object_array() {
         // GIVEN an array of objects property
-        $class = Class_::new([
-            'properties' => new Array_([
-                'sku' => Properties\String_::new(),
-            ], "Unknown property ':key'"),
-        ]);
-        $item = Properties\Object_::new([
-            'object_class' => $class,
-        ]);
         $property = Properties\Array_::new([
-            'item' => $item,
+            'item' => Properties\Object_::new([
+                'object_class' => Class_::new([
+                    'properties' => new Array_([
+                        'sku' => Properties\String_::new(),
+                    ], "Unknown property ':key'"),
+                ]),
+            ]),
         ]);
 
         // WHEN you hydrate/dehydrate a value
@@ -92,14 +89,13 @@ class test_01_hydration extends TestCase
 
     public function test_model() {
         // GIVEN a model property
-        $class = Class_::new([
-            'name' => 'tax_rate',
-            'properties' => new Array_([
-                'country_code' => Properties\String_::new(),
-            ], "Unknown property ':key'"),
-        ]);
         $property = Properties\Object_::new([
-            'object_class' => $class,
+            'object_class' => Class_::new([
+                'name' => 'tax_rate',
+                'properties' => new Array_([
+                    'country_code' => Properties\String_::new(),
+                ], "Unknown property ':key'"),
+            ]),
         ]);
 
         // WHEN you hydrate/dehydrate a value
@@ -118,16 +114,15 @@ class test_01_hydration extends TestCase
 
     public function test_model_subtypes() {
         // GIVEN a subtyped model property
-        $class = Class_::new([
-            'name' => 'product',
-            'subtype_by' => 'type',
-            'properties' => new Array_([
-                'sku' => Properties\String_::new(),
-                'type' => Properties\String_::new(),
-            ], "Unknown property ':key'"),
-        ]);
         $property = Properties\Object_::new([
-            'object_class' => $class,
+            'object_class' => Class_::new([
+                'name' => 'product',
+                'subtype_by' => 'type',
+                'properties' => new Array_([
+                    'sku' => Properties\String_::new(),
+                    'type' => Properties\String_::new(),
+                ], "Unknown property ':key'"),
+            ]),
         ]);
 
         // WHEN you hydrate/dehydrate a value
@@ -146,16 +141,14 @@ class test_01_hydration extends TestCase
 
     public function test_typed_array() {
         // GIVEN a managed array of objects property
-        $class = Class_::new([
-            'properties' => new Array_([
-                'sku' => Properties\String_::new(),
-            ], "Unknown property ':key'"),
-        ]);
-        $item = Properties\Object_::new([
-            'object_class' => $class,
-        ]);
         $property = Properties\Array_::new([
-            'item' => $item,
+            'item' => Properties\Object_::new([
+                'object_class' => Class_::new([
+                    'properties' => new Array_([
+                        'sku' => Properties\String_::new(),
+                    ], "Unknown property ':key'"),
+                ]),
+            ]),
             'array_class' => ArrayClass::new([
                 'key' => 'sku',
                 'not_found_message' => "There is no product having ':key' SKU",
@@ -180,6 +173,7 @@ class test_01_hydration extends TestCase
         $this->assertEquals('sku1', $dehydrated['sku1']->sku);
 
         $this->expectException(UndefinedArrayKey::class);
-        $a = $hydrated['sku2'];
+        /** @noinspection PhpExpressionResultUnusedInspection */
+        $hydrated['sku2'];
     }
 }

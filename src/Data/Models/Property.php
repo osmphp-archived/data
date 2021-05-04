@@ -19,7 +19,9 @@ use Osm\Data\Data\Model;
 #[Name('property'), Schema('schema'), Endpoint('/properties'), SubtypeBy('type')]
 class Property extends Model
 {
-    public function hydrate(mixed $dehydrated): mixed {
+    public function hydrate(mixed $dehydrated, array &$identities = null)
+        : mixed
+    {
         throw new NotImplemented($this);
     }
 
@@ -27,7 +29,9 @@ class Property extends Model
         throw new NotImplemented($this);
     }
 
-    public function parent(mixed $hydrated, ?Model $parent = null): void {
+    public function resolve(mixed $hydrated, array &$identities = null,
+        ?Model $parent = null): void
+    {
         throw new NotImplemented($this);
     }
 }

@@ -24,7 +24,13 @@ class Array_ extends Property
 {
     public string $type = 'array';
 
-    public function hydrate(mixed $dehydrated): mixed {
+    public function hydrate(mixed $dehydrated, array &$identities = null)
+        : mixed
+    {
+        if ($identities === null) {
+            $identities = [];
+        }
+
         if ($dehydrated === null) {
             return null;
         }
@@ -34,7 +40,7 @@ class Array_ extends Property
         }
 
         $hydrated = array_map(
-            fn($value) => $this->item->hydrate($value),
+            fn($value) => $this->item->hydrate($value, $identities),
             $dehydrated);
 
         if (!$this->array_class) {
@@ -69,7 +75,9 @@ class Array_ extends Property
         throw new InvalidType(__("Array expected"));
     }
 
-    public function parent(mixed $hydrated, ?Model $parent = null): void {
+    public function resolve(mixed $hydrated, array &$identities = null,
+        ?Model $parent = null): void
+    {
         if ($hydrated === null) {
             return;
         }
@@ -79,7 +87,7 @@ class Array_ extends Property
         }
 
         foreach ($hydrated as $value) {
-            $this->item->parent($value, $parent);
+            $this->item->resolve($value, $identities, $parent);
         }
     }
 }
