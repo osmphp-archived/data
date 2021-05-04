@@ -30,8 +30,17 @@ class Property extends Model
     }
 
     public function resolve(mixed $hydrated, array &$identities = null,
-        ?Model $parent = null): void
+        Model|\stdClass|null $parent = null): void
     {
         throw new NotImplemented($this);
+    }
+
+    public function hydrateAndResolve(mixed $dehydrated,
+        array &$identities = null): mixed
+    {
+        $hydrated = $this->hydrate($dehydrated, $identities);
+        $this->resolve($hydrated, $identities);
+
+        return $hydrated;
     }
 }

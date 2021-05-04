@@ -24,7 +24,7 @@ class Scalar extends Property
     }
 
     public function resolve(mixed $hydrated, array &$identities = null,
-        ?Model $parent = null): void
+        Model|\stdClass|null $parent = null): void
     {
         // do nothing
     }

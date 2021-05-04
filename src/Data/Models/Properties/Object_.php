@@ -21,7 +21,7 @@ use function Osm\__;
 use function Osm\create;
 
 /**
- * @property int $type_class_id #[Schema('schema')]
+ * @property int $object_class_id #[Schema('schema')]
  * @property Class_ $object_class
  * @property DataModule $data_module
  */
@@ -75,9 +75,9 @@ class Object_ extends Property
         if (isset($hydrated->id) && isset($this->object_class->endpoint)) {
             if (!isset($identities[$this->object_class->endpoint])) {
                 $identities[$this->object_class->endpoint] = [];
-                $identities[$this->object_class->endpoint][$hydrated->id]
-                    = $hydrated;
             }
+            $identities[$this->object_class->endpoint][$hydrated->id]
+                = $hydrated;
         }
 
         return $hydrated;
@@ -132,7 +132,7 @@ class Object_ extends Property
     }
 
     public function resolve(mixed $hydrated, array &$identities = null,
-        ?Model $parent = null): void
+        Model|\stdClass|null $parent = null): void
     {
         if ($hydrated === null) {
             return;
@@ -154,6 +154,12 @@ class Object_ extends Property
             $property = $this->object_class->properties[$propertyName] ?? null;
             if ($property) {
                 $property->resolve($value, $identities, $hydrated);
+            }
+        }
+
+        foreach ($this->object_class->properties as $property) {
+            if ($property->type == 'ref') {
+                $property->resolve(null, $identities, $hydrated);
             }
         }
     }

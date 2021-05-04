@@ -18,4 +18,10 @@ namespace Osm {
     function reflect(string $schema): Reflection {
         return Reflection::new(['schema' => $schema])->reflect();
     }
+
+    function id(string $prefix = 'new-'): string {
+        static $counter = 0;
+
+        return $prefix . ++$counter;
+    }
 }

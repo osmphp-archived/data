@@ -39,9 +39,10 @@ class Array_ extends Property
             throw new InvalidType(__("Array expected"));
         }
 
-        $hydrated = array_map(
-            fn($value) => $this->item->hydrate($value, $identities),
-            $dehydrated);
+        $hydrated = [];
+        foreach ($dehydrated as $key => $value) {
+            $hydrated[$key] = $this->item->hydrate($value, $identities);
+        }
 
         if (!$this->array_class) {
             return $hydrated;
@@ -76,7 +77,7 @@ class Array_ extends Property
     }
 
     public function resolve(mixed $hydrated, array &$identities = null,
-        ?Model $parent = null): void
+        Model|\stdClass|null $parent = null): void
     {
         if ($hydrated === null) {
             return;
