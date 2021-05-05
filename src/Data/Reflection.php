@@ -124,15 +124,12 @@ class Reflection extends Object_
             return false;
         }
 
-        if ($property->attributes[SchemaAttribute::class]?->name != $this->schema) {
-            return false;
-        }
-
-        if (!str_starts_with($property->class->name, $this->namespace)) {
-            return false;
-        }
-
-        return true;
+        return match ($property->attributes[SchemaAttribute::class]?->name) {
+            'standard' => true,
+            $this->schema => str_starts_with($property->class->name,
+                $this->namespace),
+            default => false,
+        };
     }
 
     protected function inferType(\stdClass $target, Property $property): void {
@@ -156,6 +153,11 @@ class Reflection extends Object_
                 break;
             case 'int':
             case '?int':
+                $target->type = $target->name == 'id' ||
+                        str_ends_with($target->name, '_id')
+                    ? 'id'
+                    : 'number';
+                break;
             case 'float':
             case '?float':
                 $target->type = 'number';
@@ -203,6 +205,7 @@ class Reflection extends Object_
             $this->classes[$modelName] = (object)[
                 'name' => $modelName,
                 'properties' => [],
+                'standard_properties' => [],
             ];
         }
         return $this->classes[$modelName];
@@ -211,12 +214,24 @@ class Reflection extends Object_
     protected function createProperty(\stdClass $model, Property $property)
         : \stdClass
     {
-        if (!isset($model->properties[$property->name])) {
-            $model->properties[$property->name] = (object)[
-                'name' => $property->name,
-            ];
+        if ($property->attributes[SchemaAttribute::class]->name == 'standard') {
+            if (!isset($model->standard_properties[$property->name])) {
+                $model->standard_properties[$property->name] = (object)[
+                    'name' => $property->name,
+                ];
+            }
+
+            return $model->standard_properties[$property->name];
         }
-        return $model->properties[$property->name];
+        else {
+            if (!isset($model->properties[$property->name])) {
+                $model->properties[$property->name] = (object)[
+                    'name' => $property->name,
+                ];
+            }
+
+            return $model->properties[$property->name];
+        }
     }
 
     protected function modelName(string $name): string {
@@ -248,6 +263,11 @@ class Reflection extends Object_
 
                 $class->id = $this->class_ids[$class->name];
             }
+            else {
+                $class->properties = array_merge($class->standard_properties,
+                    $class->properties);
+            }
+            unset($class->standard_properties);
 
             foreach ($class->properties as $property) {
                 $this->resolveClassId($property);

@@ -57,5 +57,8 @@ class test_03_reflection extends TestCase
         $this->assertEquals('object', $property->type);
         $this->assertTrue($property->object_class_id ==
             $classes['product_inventory']->id);
+
+        $this->assertTrue(isset($class->properties['id']));
+        $this->assertTrue(isset($class->properties['json']));
     }
 }
