@@ -10,9 +10,9 @@ use Osm\Data\Data\Attributes\Schema;
 use Osm\Data\Data\Model;
 
 /**
- * @property string $country_code #[Schema('taxes')]
+ * @property string $country_code #[Schema('M02_taxes')]
  */
-#[Name('tax_rate'), Schema('products'), Endpoint('/tax-rates')]
+#[Name('tax_rate'), Schema('M02_taxes'), Endpoint('/tax-rates')]
 class TaxRate extends Model
 {
 

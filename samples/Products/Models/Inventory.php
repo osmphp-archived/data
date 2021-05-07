@@ -9,9 +9,9 @@ use Osm\Data\Data\Attributes\Schema;
 use Osm\Data\Data\Model;
 
 /**
- * @property float $qty #[Schema('products')]
+ * @property float $qty #[Schema('M01_products')]
  */
-#[Name('product_inventory'), Schema('products')]
+#[Name('product_inventory'), Schema('M01_products')]
 class Inventory extends Model
 {
 

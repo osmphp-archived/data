@@ -11,6 +11,7 @@ use Osm\Core\Class_;
 use Osm\Core\Exceptions\NotImplemented;
 use Osm\Core\Object_;
 use Osm\Core\Property;
+use Osm\Data\Data\Attributes\Meta as MetaAttribute;
 use Osm\Data\Data\Attributes\ModelsData;
 use Osm\Data\Data\Attributes\Ref as RefAttribute;
 use Osm\Data\Data\Attributes\Schema as SchemaAttribute;
@@ -28,7 +29,7 @@ use function Osm\id;
  * @property string $namespace
  *
  */
-class Reflection extends Object_
+class Reflector extends Object_
 {
     /**
      * @var \stdClass[]
@@ -91,7 +92,7 @@ class Reflection extends Object_
     protected function reflectProperty(\stdClass $model, Property $property)
         : void
     {
-        if (!$this->propertyBelongs($property)) {
+        if (!$this->propertyBelongs($model, $property)) {
             return;
         }
 
@@ -104,6 +105,10 @@ class Reflection extends Object_
     }
 
     protected function classBelongs(Class_ $class): bool {
+        if (!$this->schema) {
+            return isset($class->attributes[MetaAttribute::class]);
+        }
+
         if (!isset($class->attributes[SchemaAttribute::class])) {
             return false;
         }
@@ -112,22 +117,32 @@ class Reflection extends Object_
             return false;
         }
 
-        if (!str_starts_with($class->name, $this->namespace)) {
+        if ($this->module && !str_starts_with($class->name, $this->namespace)) {
             return false;
         }
 
         return true;
     }
 
-    protected function propertyBelongs(Property $property): bool {
+    protected function propertyBelongs(\stdClass $model, Property $property)
+        : bool
+    {
+        global $osm_app; /* @var App $osm_app */
+
         if (!isset($property->attributes[SchemaAttribute::class])) {
             return false;
         }
 
+        if (!$this->schema) {
+            $class = $osm_app->classes[$this->data_module->models[$model->name]];
+            return isset($class->attributes[MetaAttribute::class]);
+        }
+
         return match ($property->attributes[SchemaAttribute::class]?->name) {
             'standard' => true,
-            $this->schema => str_starts_with($property->class->name,
-                $this->namespace),
+            $this->schema => !($this->module &&
+                !str_starts_with($property->class->name, $this->namespace)
+            ),
             default => false,
         };
     }

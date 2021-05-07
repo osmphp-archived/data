@@ -21,8 +21,8 @@ use function Osm\__;
 use function Osm\create;
 
 /**
- * @property int $object_class_id #[Schema('schema')]
- * @property Class_ $object_class
+ * @property int $object_class_id #[Schema('M01_schema')]
+ * @property Class_ $object_class #[Schema('M01_schema')]
  * @property DataModule $data_module
  */
 #[Name('property/object')]

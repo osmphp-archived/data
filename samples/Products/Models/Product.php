@@ -11,12 +11,12 @@ use Osm\Data\Data\Attributes\SubtypeBy;
 use Osm\Data\Data\Model;
 
 /**
- * @property string $sku #[Schema('products')]
- * @property string $type #[Schema('products')]
- * @property Product[] $related_products #[Schema('products')]
- * @property Inventory $inventory #[Schema('products')]
+ * @property string $sku #[Schema('M01_products')]
+ * @property string $type #[Schema('M01_products')]
+ * @property Product[] $related_products #[Schema('M01_products')]
+ * @property Inventory $inventory #[Schema('M01_products')]
  */
-#[Name('product'), Schema('products'), Endpoint('/products'), SubtypeBy('type')]
+#[Name('product'), Schema('M01_products'), Endpoint('/products'), SubtypeBy('type')]
 class Product extends Model
 {
 }

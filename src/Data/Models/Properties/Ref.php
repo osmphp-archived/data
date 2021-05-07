@@ -13,7 +13,7 @@ use Osm\Data\Data\Attributes\Schema;
 use function Osm\__;
 
 /**
- * @property int $object_class_id #[Schema('schema')]
+ * @property int $object_class_id #[Schema('M01_schema')]
  * @property Class_ $object_class
  */
 #[Name('property/ref')]

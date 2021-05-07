@@ -4,7 +4,15 @@ declare(strict_types=1);
 
 namespace Osm {
 
-    use Osm\Data\Data\Reflection;
+    use Osm\Core\App;
+    use Osm\Core\Array_;
+    use Osm\Data\Data\MetaLoader;
+    use Osm\Data\Data\Models\ArrayClass;
+    use Osm\Data\Data\Models\Class_;
+    use Osm\Data\Data\Models\Property;
+    use Osm\Data\Data\Module;
+    use Osm\Data\Data\Reflector;
+    use Osm\Data\Data\Models\Properties;
 
     function object_empty(\stdClass $object): bool {
         /** @noinspection PhpLoopNeverIteratesInspection */
@@ -13,16 +21,6 @@ namespace Osm {
         }
 
         return true;
-    }
-
-    function reflect(string $schema, array $classIds = [],
-        string $module = null): Reflection
-    {
-        return Reflection::new([
-            'module' => $module,
-            'schema' => $schema,
-            'class_ids' => $classIds,
-        ])->reflect();
     }
 
     function id(string $prefix = 'new-'): string {

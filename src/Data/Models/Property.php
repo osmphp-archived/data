@@ -7,16 +7,18 @@ namespace Osm\Data\Data\Models;
 use Osm\Core\Attributes\Name;
 use Osm\Core\Exceptions\NotImplemented;
 use Osm\Data\Data\Attributes\Endpoint;
+use Osm\Data\Data\Attributes\Meta;
 use Osm\Data\Data\Attributes\Schema;
 use Osm\Data\Data\Attributes\SubtypeBy;
 use Osm\Data\Data\Model;
 
 /**
- * @property int $parent_id #[Schema('schema')]
- * @property string $name #[Schema('schema')]
- * @property string $type #[Schema('schema')]
+ * @property int $parent_id #[Schema('M01_schema')]
+ * @property string $name #[Schema('M01_schema')]
+ * @property string $type #[Schema('M01_schema')]
  */
-#[Name('property'), Schema('schema'), Endpoint('/properties'), SubtypeBy('type')]
+#[Name('property'), Schema('M01_schema'), Endpoint('/properties'), SubtypeBy('type'),
+    Meta]
 class Property extends Model
 {
     public function hydrate(mixed $dehydrated, array &$identities = null)

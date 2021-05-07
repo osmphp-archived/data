@@ -16,8 +16,8 @@ use Osm\Data\Data\Attributes\Schema;
 use function Osm\__;
 
 /**
- * @property Property $item
- * @property ArrayClass $array_class
+ * @property Property $item #[Schema('M01_schema')]
+ * @property ArrayClass $array_class #[Schema('M01_schema')]
  */
 #[Name('property/array')]
 class Array_ extends Property
