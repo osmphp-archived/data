@@ -6,12 +6,9 @@ namespace Osm\Data\Data;
 
 use Osm\Core\App;
 use Osm\Core\BaseModule;
-use Osm\Core\Exceptions\NotImplemented;
 use Osm\Core\Object_;
-use Osm\Data\Data\Models\ArrayClass;
 use Osm\Data\Data\Models\Class_;
 use Osm\Data\Data\Models\Property;
-use Osm\Data\Data\Models\Properties;
 
 /**
  * @property Module $data_module
@@ -38,6 +35,8 @@ class MetaLoader extends Object_
                 ? $this->{"hydrate_{$key}"}($value)
                 : $value;
         }
+
+        //$data['__serialized'] = array_keys($data);
 
         return $data;
     }

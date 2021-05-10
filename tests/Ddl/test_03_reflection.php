@@ -74,48 +74,24 @@ class test_03_reflection extends TestCase
 
         // THEN the hydrated class/property structure contains enough
         // information to hydrate and resolve any reflected model
-        $this->assertTrue(isset($meta['property']));
-        $this->assertTrue(isset($meta['class']));
-        $this->assertTrue(isset($meta['array_class']));
+        $this->assertMetaSchemaReflected($meta);
+    }
 
-        $class = $meta['property'];
-        $this->assertInstanceOf(Class_::class, $class);
+    public function test_meta_schema_hydrated_reflection() {
+        // GIVEN fully hydrated and resolved meta schema
+        $data = $this->app->data;
+        $meta = $data->meta;
 
-        $this->assertTrue(isset($class->properties['id']));
-        $property = $class->properties['id'];
-        $this->assertInstanceOf(Property::class, $property);
-        $this->assertTrue($property->__parent === $class);
+        // WHEN you reflect, hydrate and resolve all the model classes
+        // marked with the `Meta` attribute - `class`, `property` and other
+        // models using the meta schema
+        $dehydrated = $data->reflect(null);
+        $property = $data->arrayOf($meta['class'], "Undefined model ':key'");
+        $hydrated = $property->hydrateAndResolve($dehydrated);
 
-        $this->assertTrue(isset($class->properties['item']));
-        $property = $class->properties['item'];
-        $this->assertInstanceOf(Properties\Object_::class, $property);
-        $this->assertTrue($property->__parent === $class);
-        $this->assertTrue($property->object_class === $meta['property']);
-
-        $this->assertTrue(isset($class->properties['object_class']));
-        $property = $class->properties['object_class'];
-        $this->assertInstanceOf(Properties\Object_::class, $property);
-        $this->assertTrue($property->__parent === $class);
-        $this->assertTrue($property->object_class === $meta['class']);
-
-        $this->assertTrue(isset($class->properties['array_class']));
-        $property = $class->properties['array_class'];
-        $this->assertInstanceOf(Properties\Object_::class, $property);
-        $this->assertTrue($property->__parent === $class);
-        $this->assertTrue($property->object_class === $meta['array_class']);
-
-        $class = $meta['class'];
-        $this->assertInstanceOf(Class_::class, $class);
-
-        $this->assertTrue(isset($class->properties['properties']));
-        $property = $class->properties['properties'];
-        $this->assertInstanceOf(Properties\Array_::class, $property);
-        $this->assertTrue($property->__parent === $class);
-
-        $item = $property->item;
-        $this->assertInstanceOf(Properties\Object_::class, $item);
-        $this->assertTrue($item->__parent === $property);
-        $this->assertTrue($item->object_class === $meta['property']);
+        // THEN the hydrated class/property structure contains enough
+        // information to hydrate and resolve any reflected model
+        $this->assertMetaSchemaReflected($hydrated);
     }
 
     public function test_hydrated_reflection() {
@@ -161,5 +137,50 @@ class test_03_reflection extends TestCase
 
         $this->assertTrue(isset($class->properties['id']));
         $this->assertTrue(isset($class->properties['json']));
+    }
+
+    protected function assertMetaSchemaReflected(array|Array_ $meta): void {
+        $this->assertTrue(isset($meta['property']));
+        $this->assertTrue(isset($meta['class']));
+        $this->assertTrue(isset($meta['array_class']));
+
+        $class = $meta['property'];
+        $this->assertInstanceOf(Class_::class, $class);
+
+        $this->assertTrue(isset($class->properties['id']));
+        $property = $class->properties['id'];
+        $this->assertInstanceOf(Property::class, $property);
+        $this->assertTrue($property->__parent === $class);
+
+        $this->assertTrue(isset($class->properties['item']));
+        $property = $class->properties['item'];
+        $this->assertInstanceOf(Properties\Object_::class, $property);
+        $this->assertTrue($property->__parent === $class);
+        $this->assertTrue($property->object_class === $meta['property']);
+
+        $this->assertTrue(isset($class->properties['object_class']));
+        $property = $class->properties['object_class'];
+        $this->assertInstanceOf(Properties\Ref::class, $property);
+        $this->assertTrue($property->__parent === $class);
+        $this->assertTrue($property->object_class === $meta['class']);
+
+        $this->assertTrue(isset($class->properties['array_class']));
+        $property = $class->properties['array_class'];
+        $this->assertInstanceOf(Properties\Object_::class, $property);
+        $this->assertTrue($property->__parent === $class);
+        $this->assertTrue($property->object_class === $meta['array_class']);
+
+        $class = $meta['class'];
+        $this->assertInstanceOf(Class_::class, $class);
+
+        $this->assertTrue(isset($class->properties['properties']));
+        $property = $class->properties['properties'];
+        $this->assertInstanceOf(Properties\Array_::class, $property);
+        $this->assertTrue($property->__parent === $class);
+
+        $item = $property->item;
+        $this->assertInstanceOf(Properties\Object_::class, $item);
+        $this->assertTrue($item->__parent === $property);
+        $this->assertTrue($item->object_class === $meta['property']);
     }
 }

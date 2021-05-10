@@ -17,12 +17,13 @@ use Osm\Data\Data\Models\Property;
 use Osm\Data\Data\Attributes\Schema;
 use Osm\Data\Data\Module as DataModule;
 use Osm\Framework\Cache\Descendants;
+use Osm\Data\Data\Attributes\Ref;
 use function Osm\__;
 use function Osm\create;
 
 /**
  * @property int $object_class_id #[Schema('M01_schema')]
- * @property Class_ $object_class #[Schema('M01_schema')]
+ * @property Class_ $object_class #[Schema('M01_schema'), Ref]
  * @property DataModule $data_module
  */
 #[Name('property/object')]

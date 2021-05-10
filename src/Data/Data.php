@@ -6,6 +6,7 @@ namespace Osm\Data\Data;
 
 use Osm\Core\App;
 use Osm\Core\Object_;
+use Osm\Data\Data\Models\ArrayClass;
 use Osm\Data\Data\Models\Class_;
 use Osm\Data\Data\Models\Property;
 use Osm\Framework\Cache\Attributes\Cached;
@@ -14,7 +15,8 @@ use function Osm\create;
 use Osm\Data\Data\Models\Properties;
 
 /**
- * @property Class_[] $meta #[Cached('data|meta')]
+ * @property \stdClass[] $dehydrated_meta #[Cached('data|meta')]
+ * @property Class_[] $meta
  */
 class Data extends Object_
 {
@@ -28,11 +30,25 @@ class Data extends Object_
         ])->reflect()->classes;
     }
 
+    protected function get_dehydrated_meta(): array {
+        return $this->reflect(null);
+    }
+
     protected function get_meta(): array {
         $meta = MetaLoader::new();
-        $classes = $this->reflect(null);
-
-        $hydrated = $meta->hydrateClasses($classes);
+        $hydrated = $meta->hydrateClasses($this->dehydrated_meta);
         return $meta->resolve($hydrated, $meta->identities);
+    }
+
+    public function arrayOf(Class_ $item, string $notFoundMessage)
+        : Properties\Array_
+    {
+        return Properties\Array_::new([
+            'item' => Properties\Object_::new([
+                'object_class' => $item]),
+            'array_class' => ArrayClass::new([
+                'not_found_message' => $notFoundMessage,
+            ]),
+        ]);
     }
 }
