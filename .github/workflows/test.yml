@@ -12,18 +12,54 @@ jobs:
             fail-fast: true
             matrix:
                 php: [ '8.0' ]
+                #db: [mysql, sqlite]
+                db: [mysql]
+                #search: [elastic, algolia]
+                search: [elastic]
 
-        name: ubuntu-latest, PHP ${{ matrix.php }}
+        name: ubuntu-latest, PHP ${{ matrix.php }}, ${{ matrix.db }}, ${{ matrix.search }}
+        env:
+            NAME: "framework_${{ github.run_number }}_${{ matrix.db }}_${{ matrix.search }}"
+            MYSQL_USERNAME: root
+            MYSQL_PASSWORD: root
+            ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
+            ALGOLIA_ADMIN_API_KEY: ${{ secrets.ALGOLIA_ADMIN_API_KEY }}
 
         steps:
             -   name: Checkout code
                 uses: actions/checkout@v2
 
+            -   name: Configure sysctl limits for ElasticSearch
+                if: ${{ matrix.search == 'elastic' }}
+                run: |
+                    sudo swapoff -a
+                    sudo sysctl -w vm.swappiness=1
+                    sudo sysctl -w fs.file-max=262144
+                    sudo sysctl -w vm.max_map_count=262144
+
+            -   name: Install ElasticSearch
+                if: ${{ matrix.search == 'elastic' }}
+                uses: getong/elasticsearch-action@v1.2
+                with:
+                    elasticsearch version: '7.6.1'
+                    host port: 9200
+                    container port: 9200
+                    host node port: 9300
+                    node port: 9300
+                    discovery type: 'single-node'
+
+            -   name: Start MySql and create the database
+                if: ${{ matrix.db == 'mysql' }}
+                run: |
+                    sudo systemctl start mysql.service
+                    mysql -u root -proot -e "CREATE DATABASE ${{ env.NAME }};"
+
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
                     php-version: ${{ matrix.php }}
-                    extensions: mbstring
+                    extensions: mbstring, pdo, sqlite, pdo_sqlite
+                    ini-values: variables_order=EGPCS
                     tools: composer:v2
                     coverage: none
                 env:
@@ -35,5 +71,16 @@ jobs:
             -   name: Install dependencies
                 run: composer update --prefer-dist --no-interaction --no-progress
 
-            -   name: Execute tests
-                run: vendor/bin/phpunit --verbose
+            -   name: Install Node modules
+                run: npm install
+
+            -   name: Run Gulp
+                run: gulp
+
+            -   name: Execute DDL tests
+                run: vendor/bin/phpunit --configuration phpunit_ddl.xml
+                env:
+                    SETTINGS: tests/settings/${{ matrix.db }}__${{ matrix.search }}.php
+                    MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+                    MYSQL_DATABASE: ${{ env.NAME }}
+                    SEARCH_INDEX_PREFIX: "${{ env.NAME }}_"
