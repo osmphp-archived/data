@@ -15,8 +15,6 @@ use Osm\Data\Samples\Products\Models\Products;
 use Osm\Data\Samples\Products\Models\TaxRate;
 use Osm\Framework\TestCase;
 use Osm\Data\Data\Models\Properties;
-use function Osm\meta_schema;
-use function Osm\reflect;
 
 class test_03_reflection extends TestCase
 {
@@ -81,12 +79,12 @@ class test_03_reflection extends TestCase
         // GIVEN fully hydrated and resolved meta schema
         $data = $this->app->data;
         $meta = $data->meta;
+        $property = $data->arrayOf($meta['class'], "Undefined model ':key'");
 
         // WHEN you reflect, hydrate and resolve all the model classes
         // marked with the `Meta` attribute - `class`, `property` and other
         // models using the meta schema
         $dehydrated = $data->reflect(null);
-        $property = $data->arrayOf($meta['class'], "Undefined model ':key'");
         $hydrated = $property->hydrateAndResolve($dehydrated);
 
         // THEN the hydrated class/property structure contains enough
@@ -98,42 +96,43 @@ class test_03_reflection extends TestCase
         // GIVEN all the model classes defined in the codebase
         $data = $this->app->data;
         $meta = $data->meta;
+        $property = $data->arrayOf($meta['class'], "Undefined model ':key'");
 
         // WHEN you reflect over classes and properties marked with
         // #[Schema('M01_products')]
         $dehydrated = $data->reflect('M01_products',
             module: \Osm\Data\Samples\Products\Module::class);
-        $classes = $meta->hydrateAndResolve($dehydrated);
+        $classes = $property->hydrateAndResolve($dehydrated);
 
         // THEN you can read the collected raw class and property information
         $this->assertTrue(isset($classes['product']));
         $class = $classes['product'];
-        $this->assertInstanceOf(\stdClass::class, $class);
+        $this->assertInstanceOf(Class_::class, $class);
         $this->assertEquals('product', $class->name);
         $this->assertEquals('/products', $class->endpoint);
         $this->assertEquals('type', $class->subtype_by);
 
         $this->assertTrue(isset($class->properties['sku']));
         $property = $class->properties['sku'];
-        $this->assertInstanceOf(\stdClass::class, $property);
+        $this->assertInstanceOf(Properties\String_::class, $property);
         $this->assertEquals('sku', $property->name);
         $this->assertEquals('string', $property->type);
 
         $this->assertTrue(isset($class->properties['related_products']));
         $property = $class->properties['related_products'];
-        $this->assertInstanceOf(\stdClass::class, $property);
+        $this->assertInstanceOf(Properties\Array_::class, $property);
         $this->assertEquals('related_products', $property->name);
         $this->assertEquals('array', $property->type);
         $this->assertEquals('object', $property->item->type);
-        $this->assertTrue($property->item->object_class_id == $class->id);
+        $this->assertTrue($property->item->object_class == $class);
 
         $this->assertTrue(isset($class->properties['inventory']));
         $property = $class->properties['inventory'];
-        $this->assertInstanceOf(\stdClass::class, $property);
+        $this->assertInstanceOf(Properties\Object_::class, $property);
         $this->assertEquals('inventory', $property->name);
         $this->assertEquals('object', $property->type);
-        $this->assertTrue($property->object_class_id ==
-            $classes['product_inventory']->id);
+        $this->assertTrue($property->object_class ==
+            $classes['product_inventory']);
 
         $this->assertTrue(isset($class->properties['id']));
         $this->assertTrue(isset($class->properties['json']));
