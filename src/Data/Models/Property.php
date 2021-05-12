@@ -10,12 +10,17 @@ use Osm\Data\Data\Attributes\Endpoint;
 use Osm\Data\Data\Attributes\Meta;
 use Osm\Data\Data\Attributes\Schema;
 use Osm\Data\Data\Attributes\SubtypeBy;
+use Osm\Data\Data\Blueprints;
 use Osm\Data\Data\Model;
+use Osm\Data\Data\Models\Column as ColumnModel;
+use Osm\Data\Data\Attributes\Column;
 
 /**
  * @property int $parent_id #[Schema('M01_schema')]
- * @property string $name #[Schema('M01_schema')]
- * @property string $type #[Schema('M01_schema')]
+ * @property string $name #[Schema('M01_schema'),
+ *      Column('string', index: true)]
+ * @property string $type #[Schema('M01_schema'), Column('string')]
+ * @property ColumnModel $column #[Schema('M01_schema')]
  */
 #[Name('property'), Schema('M01_schema'), Endpoint('/properties'), SubtypeBy('type'),
     Meta]
@@ -44,5 +49,11 @@ class Property extends Model
         $this->resolve($hydrated, $identities);
 
         return $hydrated;
+    }
+
+    public function createColumn(Blueprints $blueprints): void {
+        if ($this->column) {
+            $this->column->create($blueprints);
+        }
     }
 }

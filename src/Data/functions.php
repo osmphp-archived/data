@@ -28,4 +28,10 @@ namespace Osm {
 
         return $prefix . ++$counter;
     }
+
+    function standard_column(string $columnName): \stdClass {
+        global $osm_app; /* @var App $osm_app */
+
+        return $osm_app->data->dehydrated_meta['class']->properties[$columnName];
+    }
 }

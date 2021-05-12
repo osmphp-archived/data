@@ -9,11 +9,14 @@ use Osm\Core\Exceptions\NotSupported;
 use Osm\Core\Object_;
 use Osm\Data\Data\Attributes\Schema;
 use Osm\Core\Attributes\Serialized;
+use Osm\Data\Data\Attributes\Column;
 use function Osm\__;
 
 /**
- * @property int $id #[Schema('standard')]
- * @property \stdClass $json #[Schema('standard')]
+ * @property int $id #[Schema('standard'),
+ *      Column('integer', unsigned: true, auto_increment: true)]
+ * @property \stdClass $json #[Schema('standard'),
+ *      Column('json', nullable: true)]
  * @property Model $__parent
  */
 class Model extends Object_

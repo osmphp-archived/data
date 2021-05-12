@@ -20,9 +20,11 @@ use Osm\Framework\Cache\Descendants;
 use Osm\Data\Data\Attributes\Ref;
 use function Osm\__;
 use function Osm\create;
+use Osm\Data\Data\Attributes\Column;
 
 /**
- * @property int $object_class_id #[Schema('M01_schema')]
+ * @property int $object_class_id #[Schema('M01_schema'),
+ *      Column('integer', unsigned: true)]
  * @property Class_ $object_class #[Schema('M01_schema'), Ref]
  * @property DataModule $data_module
  */
