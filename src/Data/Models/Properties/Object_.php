@@ -9,6 +9,7 @@ use Osm\Core\Array_ as CoreArray;
 use Osm\Core\Attributes\Name;
 use Osm\Core\BaseModule;
 use Osm\Core\Exceptions\NotImplemented;
+use Osm\Data\Data\Blueprints;
 use Osm\Data\Data\Exceptions\CircularReference;
 use Osm\Data\Data\Exceptions\InvalidType;
 use Osm\Data\Data\Model;
@@ -164,6 +165,19 @@ class Object_ extends Property
             if ($property->type == 'ref') {
                 $property->resolve(null, $identities, $hydrated);
             }
+        }
+    }
+
+    public function createColumn(Blueprints $blueprints, string $prefix = '')
+        : void
+    {
+        if (!$this->object_class) {
+            parent::createColumn($blueprints);
+            return;
+        }
+
+        foreach ($this->object_class->properties as $property) {
+            $property->createColumn($blueprints, "{$prefix}{$this->name}__");
         }
     }
 }

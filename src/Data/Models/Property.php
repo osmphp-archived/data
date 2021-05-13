@@ -13,19 +13,28 @@ use Osm\Data\Data\Attributes\SubtypeBy;
 use Osm\Data\Data\Blueprints;
 use Osm\Data\Data\Model;
 use Osm\Data\Data\Models\Column as ColumnModel;
+use Osm\Data\Data\Models\Foreign as ForeignModel;
 use Osm\Data\Data\Attributes\Column;
+use Osm\Data\Data\Attributes\Foreign;
 
+//\Osm\Data\Data\Models\
 /**
- * @property int $parent_id #[Schema('M01_schema')]
+ * @property int $parent_property_id #[Schema('M01_schema'),
+ *      Column('integer', unsigned: true, nullable: true),
+ *      Foreign('property', on_delete: 'cascade')]
  * @property string $name #[Schema('M01_schema'),
  *      Column('string', index: true)]
- * @property string $type #[Schema('M01_schema'), Column('string')]
+ * @property string $type #[Schema('M01_schema'),
+ *      Column('string')]
  * @property ColumnModel $column #[Schema('M01_schema')]
+ * @property ForeignModel $foreign #[Schema('M01_schema')]
  */
-#[Name('property'), Schema('M01_schema'), Endpoint('/properties'), SubtypeBy('type'),
-    Meta]
-class Property extends Model
+#[Name('property'), Schema('M01_schema'), Endpoint('/classes/properties'),
+    SubtypeBy('type'), Meta]
+class Property extends Record
 {
+    const SOME = 'some';
+
     public function hydrate(mixed $dehydrated, array &$identities = null)
         : mixed
     {
@@ -51,9 +60,15 @@ class Property extends Model
         return $hydrated;
     }
 
-    public function createColumn(Blueprints $blueprints): void {
+    public function createColumn(Blueprints $blueprints, string $prefix = '')
+        : void
+    {
         if ($this->column) {
-            $this->column->create($blueprints);
+            $this->column->create($blueprints, $prefix);
+        }
+
+        if ($this->foreign) {
+            $this->foreign->create($blueprints, $prefix);
         }
     }
 }

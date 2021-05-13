@@ -10,8 +10,6 @@ use Osm\Data\Data\Attributes\Meta;
 use Osm\Data\Data\Attributes\Schema;
 use Osm\Data\Data\Blueprints;
 use Osm\Data\Data\Exceptions\MissingColumn;
-use Osm\Data\Data\Model;
-use Osm\Framework\Db\Db;
 use Osm\Data\Data\Attributes\Column;
 use function Osm\__;
 use function Osm\standard_column;
@@ -27,7 +25,7 @@ use function Osm\standard_column;
  * @property ?string $table
  */
 #[Name('class'), Schema('M01_schema'), Endpoint('/classes'), Meta]
-class Class_ extends Model
+class Class_ extends Record
 {
     public function createTable(Blueprints $blueprints): void {
         if (!$this->table) {

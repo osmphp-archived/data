@@ -32,6 +32,25 @@ namespace Osm {
     function standard_column(string $columnName): \stdClass {
         global $osm_app; /* @var App $osm_app */
 
-        return $osm_app->data->dehydrated_meta['class']->properties[$columnName];
+        return deep_clone($osm_app->data->dehydrated_meta['class']
+            ->properties[$columnName]);
+    }
+
+    function deep_clone(mixed $value): mixed {
+        if (is_object($value)) {
+            $value = clone $value;
+
+            foreach ($value as $key => $item) {
+                $value->$key = deep_clone($item);
+            }
+
+            return $value;
+        }
+
+        if (is_array($value)) {
+            return array_map(fn($item) => deep_clone($item), $value);
+        }
+
+        return $value;
     }
 }

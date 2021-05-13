@@ -297,24 +297,33 @@ class Reflector extends Object_
                 break;
             case 'object':
             case 'ref':
-                if (isset($property->object_class)) {
-                    if (isset($this->class_ids[$property->object_class])) {
-                        $property->object_class_id =
-                            $this->class_ids[$property->object_class];
-                        unset($property->object_class);
-                    }
-                    elseif (isset($this->classes[$property->object_class])) {
-                        $property->object_class_id =
-                            $this->classes[$property->object_class]->id;
-                        unset($property->object_class);
-                    }
-                    else {
-                        throw new ReflectionError(__(
-                            "ID for class ':class' not provided",
-                            ['class' => $property->object_class]));
-                    }
+                $this->doResolveClassId($property, 'object_class');
+                break;
+            case 'id':
+                if (isset($property->foreign)) {
+                    $this->doResolveClassId($property->foreign, 'class');
                 }
                 break;
+        }
+    }
+
+    protected function doResolveClassId(\stdClass $property, string $key): void {
+        if (isset($property->$key)) {
+            if (isset($this->class_ids[$property->$key])) {
+                $property->{"{$key}_id"} =
+                    $this->class_ids[$property->$key];
+                unset($property->$key);
+            }
+            elseif (isset($this->classes[$property->$key])) {
+                $property->{"{$key}_id"} =
+                    $this->classes[$property->$key]->id;
+                unset($property->$key);
+            }
+            else {
+                throw new ReflectionError(__(
+                    "ID for class ':class' not provided",
+                    ['class' => $property->$key]));
+            }
         }
     }
 }

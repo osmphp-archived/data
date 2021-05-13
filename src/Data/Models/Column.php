@@ -25,9 +25,11 @@ use Osm\Data\Data\Model;
 #[Name('column'), Schema('M01_schema'), Meta]
 class Column extends Model
 {
-    public function create(Blueprints $blueprints): void {
-        $blueprints->blueprint()->callbacks[] = function(Blueprint $table) {
-            $table->addColumn($this->type, $this->property->name,
+    public function create(Blueprints $blueprints, string $prefix = ''): void {
+        $blueprints->blueprint()->callbacks[] = function(Blueprint $table)
+            use ($prefix)
+        {
+            $table->addColumn($this->type, $prefix . $this->property->name,
                 array_filter($this->modifiers ?? [],
                     fn($item) => $item !== null));
         };
@@ -44,7 +46,8 @@ class Column extends Model
             'autoIncrement' => $this->auto_increment,
             'index' => $this->index,
             'unique' => $this->unique,
-            'length' => $this->length,
+            'length' => $this->length
+                ?? ($this->type == 'string' ? 255 : null),
         ];
     }
 }

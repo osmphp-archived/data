@@ -7,14 +7,14 @@ namespace Osm\Data\Samples\Products\Models;
 use Osm\Core\Attributes\Name;
 use Osm\Data\Data\Attributes\Endpoint;
 use Osm\Data\Data\Attributes\Schema;
-use Osm\Data\Data\Model;
 use Osm\Data\Data\Models\Record;
+use Osm\Data\Data\Attributes\Column;
 
 /**
- * @property string $country_code #[Schema('M02_taxes')]
+ * @property string $no #[Schema('M01_products'),
+ *      Column('string')]
  */
-#[Name('tax_rate'), Schema('M02_taxes'), Endpoint('/tax-rates')]
-class TaxRate extends Record
+#[Name('order'), Schema('M01_products'), Endpoint('/orders')]
+class Order extends Record
 {
-
 }
