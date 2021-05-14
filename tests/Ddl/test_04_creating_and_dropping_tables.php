@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Osm\Data\Tests\Ddl;
 
-use Osm\Data\Data\Blueprints;
 use Osm\Data\Data\Models\Class_;
 use Osm\Framework\TestCase;
 use function Osm\id;

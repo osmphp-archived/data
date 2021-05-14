@@ -11,7 +11,6 @@ use Osm\Data\Data\Attributes\Endpoint;
 use Osm\Data\Data\Attributes\Meta;
 use Osm\Data\Data\Attributes\Schema;
 use Osm\Data\Data\Attributes\SubtypeBy;
-use Osm\Data\Data\Blueprints;
 use Osm\Data\Data\Model;
 use Osm\Data\Data\Models\Column as ColumnModel;
 use Osm\Data\Data\Models\Foreign as ForeignModel;

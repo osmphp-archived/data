@@ -8,7 +8,6 @@ use Illuminate\Database\Schema\Blueprint;
 use Osm\Core\Attributes\Name;
 use Osm\Data\Data\Attributes\Meta;
 use Osm\Data\Data\Attributes\Schema;
-use Osm\Data\Data\Blueprints;
 use Osm\Data\Data\Model;
 
 /**

@@ -14,7 +14,6 @@ try {
     Apps::run(Apps::create(App::class), function(App $app) {
         $app->cache->clear();
         $app->migrations()->fresh();
-        $app->migrations()->up(\Osm\Data\Data\Module::class);
     });
 }
 catch (Throwable $e) {

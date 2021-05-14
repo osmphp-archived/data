@@ -11,7 +11,6 @@ use Osm\Core\Exceptions\NotImplemented;
 use Osm\Data\Data\Attributes\Endpoint;
 use Osm\Data\Data\Attributes\Meta;
 use Osm\Data\Data\Attributes\Schema;
-use Osm\Data\Data\Blueprints;
 use Osm\Data\Data\Exceptions\MissingColumn;
 use Osm\Data\Data\Attributes\Column;
 use Osm\Framework\Db\Db;
