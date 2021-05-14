@@ -59,7 +59,7 @@ class Class_ extends Record
         });
 
         $db->rolledBack(function(Db $db) {
-            $db->drop($this->table);
+            $db->dropIfExists($this->table);
         });
     }
 

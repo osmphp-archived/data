@@ -235,4 +235,39 @@ class test_04_creating_and_dropping_tables extends TestCase
         $this->assertTrue($schema->hasColumn('orders', 'no'));
         $this->assertFalse($schema->hasColumn('orders__lines', 'order_id'));
     }
+
+
+    public function test_deleting_table_from_dehydrated_data() {
+        // GIVEN the meta-schema
+        $data = $this->app->data;
+        $meta = $data->meta;
+        $property = $data->arrayOf($meta['class'], "Undefined model ':key'");
+
+        // AND a dehydrated endpoint definition
+        /* @var Class_[] $classes */
+        $classes = $property->hydrateAndResolve([
+            'order' => (object)[
+                'id' => $orders = id(),
+                'endpoint' => '/orders',
+                'properties' => [
+                    'id' => standard_column('id'),
+                    'json' => standard_column('json'),
+                ],
+            ],
+        ]);
+
+        // AND you create a table for each endpoint
+        foreach ($classes as $class) {
+            /* @var Class_ $class */
+            $class->createTable($this->db);
+        }
+
+        // WHEN you add/or remove properties
+        $classes['order']->dropTable($this->db);
+
+        // THEN the columns are added/removed accordingly
+        $schema = $this->db->connection->getSchemaBuilder();
+
+        $this->assertFalse($schema->hasTable('orders'));
+    }
 }
