@@ -21,18 +21,18 @@ use Osm\Data\Data\Model;
 #[Name('foreign'), Schema('M01_schema'), Meta]
 class Foreign extends Model
 {
-    public function create(Blueprints $blueprints, string $prefix = ''): void {
-        $blueprints->blueprint()->callbacks[] = function(Blueprint $table)
-            use ($prefix)
-        {
-            $constraint = $table->foreign($this->property->name)
-                ->references('id')
-                ->on($this->class->table);
+    public function create(Blueprint $table, string $prefix = ''): void {
+        $constraint = $table->foreign($prefix . $this->property->name)
+            ->references('id')
+            ->on($this->class->table);
 
-            if ($this->on_delete) {
-                $constraint->onDelete($this->on_delete);
-            }
-        };
+        if ($this->on_delete) {
+            $constraint->onDelete($this->on_delete);
+        }
+    }
+
+    public function drop(Blueprint $table, string $prefix = ''): void {
+        $table->dropForeign([$prefix . $this->property->name]);
     }
 
     protected function get_property(): Model {

@@ -65,6 +65,23 @@ class Blueprints extends Object_
         }
     }
 
+    public function alterTable(string $table, callable $callback) {
+        $this->blueprints[] = $blueprint = (object)[
+            'type' => Blueprint::CREATE_TABLE,
+            'name' => $table,
+            'callbacks' => [],
+        ];
+
+        array_push($this->blueprint_stack, $blueprint);
+
+        try {
+            $callback($this);
+        }
+        finally {
+            array_pop($this->blueprint_stack);
+        }
+    }
+
     public function blueprint(): \stdClass|Blueprint|null {
         if (!($count = count($this->blueprint_stack))) {
             return null;

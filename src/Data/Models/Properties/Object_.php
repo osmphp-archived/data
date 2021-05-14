@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Data\Data\Models\Properties;
 
+use Illuminate\Database\Schema\Blueprint;
 use Osm\Core\App;
 use Osm\Core\Array_ as CoreArray;
 use Osm\Core\Attributes\Name;
@@ -19,6 +20,7 @@ use Osm\Data\Data\Attributes\Schema;
 use Osm\Data\Data\Module as DataModule;
 use Osm\Framework\Cache\Descendants;
 use Osm\Data\Data\Attributes\Ref;
+use Osm\Framework\Db\Db;
 use function Osm\__;
 use function Osm\create;
 use Osm\Data\Data\Attributes\Column;
@@ -168,16 +170,16 @@ class Object_ extends Property
         }
     }
 
-    public function createColumn(Blueprints $blueprints, string $prefix = '')
-        : void
+    public function createColumn(Db $db, Blueprint|string $table,
+        string $prefix = ''): void
     {
         if (!$this->object_class) {
-            parent::createColumn($blueprints);
+            parent::createColumn($db, $table, $prefix);
             return;
         }
 
         foreach ($this->object_class->properties as $property) {
-            $property->createColumn($blueprints, "{$prefix}{$this->name}__");
+            $property->createColumn($db, $table, "{$prefix}{$this->name}__");
         }
     }
 }

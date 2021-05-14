@@ -99,12 +99,10 @@ class test_04_creating_and_dropping_tables extends TestCase
         ];
 
         // WHEN you create a table for each endpoint
-        $blueprints = Blueprints::new(['db' => $this->db]);
         foreach ($property->hydrateAndResolve($data) as $class) {
             /* @var Class_ $class */
-            $class->createTable($blueprints);
+            $class->createTable($this->db);
         }
-        $blueprints->run();
 
         // THEN the table is there
         $schema = $this->db->connection->getSchemaBuilder();
@@ -139,12 +137,10 @@ class test_04_creating_and_dropping_tables extends TestCase
             module: \Osm\Data\Samples\Products\Module::class);
 
         // WHEN you create a table for each endpoint
-        $blueprints = Blueprints::new(['db' => $this->db]);
         foreach ($property->hydrateAndResolve($data) as $class) {
             /* @var Class_ $class */
-            $class->createTable($blueprints);
+            $class->createTable($this->db);
         }
-        $blueprints->run();
 
         // THEN the table is there
         $schema = $this->db->connection->getSchemaBuilder();
@@ -166,5 +162,77 @@ class test_04_creating_and_dropping_tables extends TestCase
         $this->assertTrue($schema->hasColumn('orders__lines', 'id'));
         $this->assertTrue($schema->hasColumn('orders__lines', 'json'));
         $this->assertTrue($schema->hasColumn('orders__lines', 'order_id'));
+    }
+
+    public function test_altering_table_from_dehydrated_data() {
+        // GIVEN the meta-schema
+        $data = $this->app->data;
+        $meta = $data->meta;
+        $property = $data->arrayOf($meta['class'], "Undefined model ':key'");
+
+        // AND a dehydrated endpoint definition
+        /* @var Class_[] $classes */
+        $classes = $property->hydrateAndResolve([
+            'order' => (object)[
+                'id' => $orders = id(),
+                'endpoint' => '/orders',
+                'properties' => [
+                    'id' => standard_column('id'),
+                    'json' => standard_column('json'),
+                ],
+            ],
+            'order_line' => (object)[
+                'id' => id(),
+                'endpoint' => '/orders/lines',
+                'properties' => [
+                    'id' => standard_column('id'),
+                    'json' => standard_column('json'),
+                    'order_id' => (object)[
+                        'id' => $order_id = id(),
+                        'name' => 'order_id',
+                        'type' => 'id',
+                        'column' => (object)[
+                            'type' => 'integer',
+                            'unsigned' => true,
+                        ],
+                        'foreign' => (object)[
+                            'class_id' => $orders,
+                            'on_delete' => 'cascade',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        // AND you create a table for each endpoint
+        foreach ($classes as $class) {
+            /* @var Class_ $class */
+            $class->createTable($this->db);
+        }
+
+        // WHEN you add/or remove properties
+        $classes['order']->alterTable($this->db, (object)[
+            'properties' => [
+                'no' => (object)[
+                    'id' => id(),
+                    'name' => 'no',
+                    'type' => 'string',
+                    'column' => (object)['type' => 'string'],
+                ],
+            ],
+        ]);
+        $classes['order_line']->alterTable($this->db, (object)[
+            'properties' => [
+                'order_id' => (object)[
+                    'id' => "deleted-{$order_id}",
+                ],
+            ],
+        ]);
+
+        // THEN the columns are added/removed accordingly
+        $schema = $this->db->connection->getSchemaBuilder();
+
+        $this->assertTrue($schema->hasColumn('orders', 'no'));
+        $this->assertFalse($schema->hasColumn('orders__lines', 'order_id'));
     }
 }

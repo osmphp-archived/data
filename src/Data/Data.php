@@ -51,4 +51,8 @@ class Data extends Object_
             ]),
         ]);
     }
+
+    public function objectOf(Class_ $item): Properties\Object_ {
+        return Properties\Object_::new(['object_class' => $item]);
+    }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Data\Data\Models;
 
+use Illuminate\Database\Schema\Blueprint;
 use Osm\Core\Attributes\Name;
 use Osm\Core\Exceptions\NotImplemented;
 use Osm\Data\Data\Attributes\Endpoint;
@@ -16,6 +17,7 @@ use Osm\Data\Data\Models\Column as ColumnModel;
 use Osm\Data\Data\Models\Foreign as ForeignModel;
 use Osm\Data\Data\Attributes\Column;
 use Osm\Data\Data\Attributes\Foreign;
+use Osm\Framework\Db\Db;
 
 //\Osm\Data\Data\Models\
 /**
@@ -60,15 +62,58 @@ class Property extends Record
         return $hydrated;
     }
 
-    public function createColumn(Blueprints $blueprints, string $prefix = '')
-        : void
+    public function createColumn(Db $db, Blueprint|string $table,
+        string $prefix = ''): void
     {
-        if ($this->column) {
-            $this->column->create($blueprints, $prefix);
+        if ($table instanceof Blueprint) {
+            if ($this->column) {
+                $this->column->create($table, $prefix);
+            }
+
+            if ($this->foreign) {
+                $this->foreign->create($table, $prefix);
+            }
+        }
+        else {
+            if ($this->column) {
+                $db->alter($table, function(Blueprint $table) use ($prefix) {
+                    $this->column->create($table, $prefix);
+                });
+
+                $db->rolledBack(function(Db $db) use ($table, $prefix) {
+                    $db->alter($table, function(Blueprint $table) use ($prefix) {
+                        $this->column->drop($table, $prefix);
+                    });
+                });
+            }
+
+            if ($this->foreign) {
+                $db->alter($table, function(Blueprint $table) use ($prefix) {
+                    $this->foreign->create($table, $prefix);
+                });
+
+                $db->rolledBack(function(Db $db) use ($table, $prefix) {
+                    $db->alter($table, function(Blueprint $table) use ($prefix) {
+                        $this->foreign->drop($table, $prefix);
+                    });
+                });
+            }
+        }
+    }
+
+    public function dropColumn(Db $db, string $table,
+        string $prefix = ''): void
+    {
+        if ($this->foreign) {
+            $db->alter($table, function(Blueprint $table) use ($prefix) {
+                $this->foreign->drop($table, $prefix);
+            });
         }
 
-        if ($this->foreign) {
-            $this->foreign->create($blueprints, $prefix);
+        if ($this->column) {
+            $db->alter($table, function(Blueprint $table) use ($prefix) {
+                $this->column->drop($table, $prefix);
+            });
         }
     }
 }

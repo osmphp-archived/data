@@ -25,14 +25,14 @@ use Osm\Data\Data\Model;
 #[Name('column'), Schema('M01_schema'), Meta]
 class Column extends Model
 {
-    public function create(Blueprints $blueprints, string $prefix = ''): void {
-        $blueprints->blueprint()->callbacks[] = function(Blueprint $table)
-            use ($prefix)
-        {
-            $table->addColumn($this->type, $prefix . $this->property->name,
-                array_filter($this->modifiers ?? [],
-                    fn($item) => $item !== null));
-        };
+    public function create(Blueprint $table, string $prefix = ''): void {
+        $table->addColumn($this->type, $prefix . $this->property->name,
+            array_filter($this->modifiers ?? [],
+                fn($item) => $item !== null));
+    }
+
+    public function drop(Blueprint $table, string $prefix = ''): void {
+        $table->dropColumn($prefix . $this->property->name);
     }
 
     protected function get_property(): Model {
