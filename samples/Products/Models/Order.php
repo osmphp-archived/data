@@ -11,7 +11,9 @@ use Osm\Data\Data\Models\Record;
 use Osm\Data\Data\Attributes\Column;
 
 /**
- * @property string $no #[Schema('M01_products'),
+ * @property string $note #[Schema('M01_products'),
+ *      Column('string')]
+ * @property string $no #[Schema('M02_products'),
  *      Column('string')]
  */
 #[Name('order'), Schema('M01_products'), Endpoint('/orders')]

@@ -18,7 +18,6 @@ use Osm\Data\Data\Attributes\Column;
 use Osm\Data\Data\Attributes\Foreign;
 use Osm\Framework\Db\Db;
 
-//\Osm\Data\Data\Models\
 /**
  * @property int $parent_property_id #[Schema('M01_schema'),
  *      Column('integer', unsigned: true, nullable: true),

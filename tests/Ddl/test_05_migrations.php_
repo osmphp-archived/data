@@ -1,0 +1,28 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Osm\Data\Tests\Ddl;
+
+use Osm\Data\Data\Models\Class_;
+use Osm\Framework\TestCase;
+use function Osm\id;
+use function Osm\standard_column;
+
+class test_05_migrations extends TestCase
+{
+    public string $app_class_name = \Osm\Data\Samples\App::class;
+    public bool $use_db = true;
+
+    public function test_schema_01() {
+        // GIVEN that no migrations has run yet
+        $data = $this->app->data;
+
+        // WHEN you migrate the schema
+        $data->migrateUp($this->db, 'M01_schema',
+            module: \Osm\Data\Data\Module::class);
+
+        // THEN
+        $a = 1;
+    }
+}

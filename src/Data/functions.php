@@ -13,6 +13,7 @@ namespace Osm {
     use Osm\Data\Data\Module;
     use Osm\Data\Data\Reflector;
     use Osm\Data\Data\Models\Properties;
+    use Osm\Framework\Db\Db;
 
     function object_empty(\stdClass $object): bool {
         /** @noinspection PhpLoopNeverIteratesInspection */

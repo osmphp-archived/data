@@ -54,6 +54,11 @@ class Reflector extends Object_
     {
         $model = $this->createClass($name);
 
+        $exists = $this->schema && !(
+            isset($class->attributes[SchemaAttribute::class]) &&
+            ($class->attributes[SchemaAttribute::class]->name === $this->schema)
+        );
+
         if ($isModel) {
             $model->id = id();
 
@@ -63,7 +68,7 @@ class Reflector extends Object_
         }
 
         foreach ($class->properties as $property) {
-            $this->reflectProperty($model, $property);
+            $this->reflectProperty($model, $property, $exists);
         }
     }
 
@@ -89,10 +94,10 @@ class Reflector extends Object_
         }
     }
 
-    protected function reflectProperty(\stdClass $model, Property $property)
-        : void
+    protected function reflectProperty(\stdClass $model, Property $property,
+        bool $exists): void
     {
-        if (!$this->propertyBelongs($model, $property)) {
+        if (!$this->propertyBelongs($model, $property, $exists)) {
             return;
         }
 
@@ -104,28 +109,8 @@ class Reflector extends Object_
         }
     }
 
-    protected function classBelongs(Class_ $class): bool {
-        if (!$this->schema) {
-            return isset($class->attributes[MetaAttribute::class]);
-        }
-
-        if (!isset($class->attributes[SchemaAttribute::class])) {
-            return false;
-        }
-
-        if ($class->attributes[SchemaAttribute::class]?->name != $this->schema) {
-            return false;
-        }
-
-        if ($this->module && !str_starts_with($class->name, $this->namespace)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    protected function propertyBelongs(\stdClass $model, Property $property)
-        : bool
+    protected function propertyBelongs(\stdClass $model, Property $property,
+        bool $exists): bool
     {
         global $osm_app; /* @var App $osm_app */
 
@@ -139,7 +124,7 @@ class Reflector extends Object_
         }
 
         return match ($property->attributes[SchemaAttribute::class]?->name) {
-            'standard' => true,
+            'standard' => !$exists,
             $this->schema => !($this->module &&
                 !str_starts_with($property->class->name, $this->namespace)
             ),
@@ -232,6 +217,7 @@ class Reflector extends Object_
         if ($property->attributes[SchemaAttribute::class]->name == 'standard') {
             if (!isset($model->standard_properties[$property->name])) {
                 $model->standard_properties[$property->name] = (object)[
+                    'id' => id(),
                     'name' => $property->name,
                 ];
             }
@@ -241,6 +227,7 @@ class Reflector extends Object_
         else {
             if (!isset($model->properties[$property->name])) {
                 $model->properties[$property->name] = (object)[
+                    'id' => id(),
                     'name' => $property->name,
                 ];
             }

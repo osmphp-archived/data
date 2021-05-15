@@ -73,7 +73,7 @@ class Class_ extends Record
         $deletedProperties = [];
 
         foreach ($changes->properties ?? [] as $property) {
-            if (!$property->id) {
+            if (!isset($property->id)) {
                 throw new NotImplemented($this);
             }
 

@@ -11,6 +11,7 @@ use Osm\Data\Data\Models\Class_;
 use Osm\Data\Data\Models\Property;
 use Osm\Framework\Cache\Attributes\Cached;
 use Osm\Framework\Cache\Descendants;
+use Osm\Framework\Db\Db;
 use function Osm\create;
 use Osm\Data\Data\Models\Properties;
 
@@ -54,5 +55,35 @@ class Data extends Object_
 
     public function objectOf(Class_ $item): Properties\Object_ {
         return Properties\Object_::new(['object_class' => $item]);
+    }
+
+    public function migrateUp(Db $db, string $schema,
+        string $module = null): void
+    {
+        $meta = $this->meta;
+
+        $property = $this->arrayOf($meta['class'],
+            "Undefined model ':key'");
+        $dehydrated = $this->reflect($schema, module: $module);
+
+        foreach ($property->hydrateAndResolve($dehydrated) as $class) {
+            /* @var Class_ $class */
+            $class->createTable($db);
+        }
+    }
+
+    public function migrateDown(Db $db, string $schema,
+        string $module = null): void
+    {
+        $meta = $this->meta;
+
+        $property = $this->objectOf($meta['class']);
+        $dehydrated = $this->reflect($schema, module: $module);
+
+        foreach ($dehydrated as $item) {
+            /* @var Class_ $class */
+            $class = $property->hydrateAndResolve($dehydrated);
+            $class->createTable($db);
+        }
     }
 }

@@ -235,6 +235,40 @@ class test_04_creating_and_dropping_tables extends TestCase
         $this->assertFalse($schema->hasColumn('orders__lines', 'order_id'));
     }
 
+    public function test_altering_table_from_reflected_data() {
+        // GIVEN the meta-schema
+        $data = $this->app->data;
+        $meta = $data->meta;
+        $property = $data->arrayOf($meta['class'], "Undefined model ':key'");
+
+        // AND reflected endpoint definitions
+        $dehydrated = $data->reflect('M01_products',
+            module: \Osm\Data\Samples\Products\Module::class);
+
+        // AND tables created for all the endpoints
+        $classes = $property->hydrateAndResolve($dehydrated);
+        foreach ($classes as $class) {
+            /* @var Class_ $class */
+            $class->createTable($this->db);
+        }
+
+        // AND reflected endpoint changes
+        $dehydrated = $data->reflect('M02_products',
+            module: \Osm\Data\Samples\Products\Module::class);
+
+        // WHEN you alter tables based on the reflected changes
+        foreach ($classes as $class) {
+            /* @var Class_ $class */
+            if (isset($dehydrated[$class->name])) {
+                $class->alterTable($this->db, $dehydrated[$class->name]);
+            }
+        }
+
+        // THEN the columns are added accordingly
+        $schema = $this->db->connection->getSchemaBuilder();
+
+        $this->assertTrue($schema->hasColumn('orders', 'no'));
+    }
 
     public function test_deleting_table_from_dehydrated_data() {
         // GIVEN the meta-schema
